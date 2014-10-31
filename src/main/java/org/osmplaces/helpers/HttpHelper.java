@@ -11,8 +11,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class HttpHelper {
 	
@@ -24,15 +23,18 @@ public class HttpHelper {
 	
 	
 	private HttpClient buildClient(){
-		HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+// 		WORKS in java version but not android
+//		HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+//		
+//		if(this.proxy != null){
+//			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+//			clientBuilder.setRoutePlanner(routePlanner);
+//		}
+//		
+//		 
+//		return clientBuilder.build();		
 		
-		if(this.proxy != null){
-			DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-			clientBuilder.setRoutePlanner(routePlanner);
-		}
-		
-		 
-		return clientBuilder.build();		
+		return new DefaultHttpClient();
 	}
 	
 	public String encodeString(String string){

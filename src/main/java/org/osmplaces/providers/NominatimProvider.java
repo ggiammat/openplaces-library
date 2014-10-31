@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.osmplaces.helpers.HttpHelper;
-import org.osmplaces.model.Place;
+import org.osmplaces.model.NominationElement;
+import org.osmplaces.model.OSMPlace;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -16,7 +17,6 @@ import com.google.gson.GsonBuilder;
 public class NominatimProvider {
 	
 	
-	public static final String NOMINATIM_SERVER = "http://nominatim.openstreetmap.org/";
 	
 	
 	private String server;
@@ -31,7 +31,7 @@ public class NominatimProvider {
 	
 	
 	
-	public List<Place> searchInside(
+	public List<NominationElement> searchInside(
 			double vbLeft, double vbTop, double vbRight, double vbBottom, String query){
 		Map<String, String> queryStringParams = new HashMap<String, String>();
 		queryStringParams.put("q", hh.encodeString(query));
@@ -42,7 +42,7 @@ public class NominatimProvider {
 	
 	
 	
-	public List<Place> search(String query){
+	public List<NominationElement> search(String query){
 		Map<String, String> queryStringParams = new HashMap<String, String>();
 		queryStringParams.put("q", hh.encodeString(query));
 		return this.doSearch(queryStringParams);
@@ -50,7 +50,7 @@ public class NominatimProvider {
 	
 	
 	
-	private List<Place> doSearch(Map<String, String> queryStringParams){
+	private List<NominationElement> doSearch(Map<String, String> queryStringParams){
 		queryStringParams.put("format", "json");
 		queryStringParams.put("email", this.userEmail);
 		queryStringParams.put("addressdetails", "1");
@@ -73,12 +73,10 @@ public class NominatimProvider {
 		return qs.toString().substring(0, qs.length()-1);
 	}
 	
-	private List<Place> jsonToPlace(String jstring){
+	private List<NominationElement> jsonToPlace(String jstring){
 		
-		Gson gson = new GsonBuilder().
-				setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).
-				create();
-		Place[] places = gson.fromJson(jstring, Place[].class);
+		Gson gson = new Gson();
+		NominationElement[] places = gson.fromJson(jstring, NominationElement[].class);
 		
 		
 		return Arrays.asList(places);
