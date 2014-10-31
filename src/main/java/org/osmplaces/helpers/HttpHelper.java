@@ -19,7 +19,7 @@ public class HttpHelper {
 	HttpHost proxy = null;
 	
 	public void setHttpProxy(String host, int port){
-		this.proxy = new HttpHost("www-proxy.eng.it", 8080);
+		this.proxy = new HttpHost(host, port);
 	}
 	
 	
