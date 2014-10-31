@@ -6,12 +6,26 @@ public class Place {
 	private double lat;
 	private double lon;
 	private long osmId;
+	private String osmType;
+	
 	private String displayName;
 	
 	public Place() {
 		super();
 	}
 	
+
+
+	public String getOsmType() {
+		return osmType;
+	}
+
+
+
+	public void setOsmType(String osmType) {
+		this.osmType = osmType;
+	}
+
 
 
 	public double getLat() {
