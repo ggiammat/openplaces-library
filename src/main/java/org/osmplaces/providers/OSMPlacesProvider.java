@@ -3,6 +3,7 @@ package org.osmplaces.providers;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.osmplaces.model.NominationElement;
 import org.osmplaces.model.OSMPlace;
 import org.osmplaces.model.OverpassElement;
 import org.osmplaces.model.ReviewServerElement;
+import org.osmplaces.model.SearchSuggestionElement;
 
 
 public class OSMPlacesProvider {
@@ -37,6 +39,26 @@ public class OSMPlacesProvider {
 	
 	
 	
+	public Collection<SearchSuggestionElement> getPlacesSearchSuggestions(double lat, double lon, String amenity, String partialName){
+		List<OverpassElement> res = this.opp.getPlaces(lat, lon, 5000, amenity, partialName);
+		List<SearchSuggestionElement> returnObj = new LinkedList<SearchSuggestionElement>();
+		for(OverpassElement el: res){
+			returnObj.add(new SearchSuggestionElement(SearchSuggestionElement.SuggestionType.PLACE, el));
+		}
+		return returnObj;
+	}
+	
+	//TODO: use is_in, addr:city, etc... tags for building further suggestion
+	public Collection<SearchSuggestionElement> getAroundLocations(double lat, double lon){
+		List<OverpassElement> res = this.opp.getAroundLocations(lat, lon, 10000);
+		List<SearchSuggestionElement> returnObj = new LinkedList<SearchSuggestionElement>();
+		for(OverpassElement el: res){
+			returnObj.add(new SearchSuggestionElement(SearchSuggestionElement.SuggestionType.LOCATION, el));
+		}
+		return returnObj;
+	}
+	
+ 	
 	public void mergeReviewServerInfo(OSMPlace p){
 		ReviewServerElement res = this.rsp.getPlace(Long.toString(p.getId()));
 		OSMPlaceHelper.mergeWithReviewServerElement(p, res);
