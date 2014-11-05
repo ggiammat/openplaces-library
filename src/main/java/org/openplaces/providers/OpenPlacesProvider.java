@@ -1,4 +1,4 @@
-package org.osmplaces.providers;
+package org.openplaces.providers;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,16 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osmplaces.helpers.HttpHelper;
-import org.osmplaces.helpers.OSMPlaceHelper;
-import org.osmplaces.model.NominationElement;
-import org.osmplaces.model.OSMPlace;
-import org.osmplaces.model.OverpassElement;
-import org.osmplaces.model.ReviewServerElement;
-import org.osmplaces.model.SearchSuggestionElement;
+import org.openplaces.helpers.HttpHelper;
+import org.openplaces.helpers.OSMPlaceHelper;
+import org.openplaces.model.NominationElement;
+import org.openplaces.model.OLocation;
+import org.openplaces.model.OSMPlace;
+import org.openplaces.model.OverpassElement;
+import org.openplaces.model.ReviewServerElement;
+import org.openplaces.model.SearchSuggestionElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public class OSMPlacesProvider {
+public class OpenPlacesProvider {
+
+    Logger logger = LoggerFactory.getLogger(OpenPlacesProvider.class);
 	
 	public static final String OVERPASS_SERVER = "http://overpass.osm.rambler.ru/cgi/interpreter";
 	public static final String NOMINATIM_SERVER = "http://nominatim.openstreetmap.org/";
@@ -28,14 +33,38 @@ public class OSMPlacesProvider {
 	private ReviewServerProvider rsp;
 	
 	
-	public OSMPlacesProvider(HttpHelper hh, String userEmail,
-			String nominationServer, String overpassServer, String reviewServerServer) {
+	public OpenPlacesProvider(HttpHelper hh, String userEmail,
+                              String nominationServer, String overpassServer, String reviewServerServer) {
 		super();
 		
 		this.nmp = new NominatimProvider(nominationServer, userEmail, hh);
 		this.opp = new OverpassProvider(overpassServer, hh);
 		this.rsp = new ReviewServerProvider(reviewServerServer, hh);
 	}
+
+
+
+
+    public Collection<OLocation> getLocationsByName(String name){
+
+        List<NominationElement> nmRes = this.nmp.search(name);
+
+        for(NominationElement n: nmRes){
+            if(!"place".equals(n.getClazz()) && !"boundary".equals(n.getClazz())){
+                logger.debug("Discarding >>{}<< bacause it is neither a place nor a boundary", n);
+                continue;
+            }
+            System.out.println(n);
+        }
+
+
+        return null;
+    }
+
+    public Collection<OLocation> getLocationsAround(double lat, double lon, int radius){
+        //TODO... use overpass since Nominatim does not allow this type of search
+        return null;
+    }
 	
 	
 	

@@ -1,19 +1,9 @@
-package org.osmplaces.providers;
+package org.openplaces.providers;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import org.openplaces.helpers.HttpHelper;
+import org.openplaces.model.ReviewServerElement;
 
-import org.osmplaces.helpers.HttpHelper;
-import org.osmplaces.model.NominationElement;
-import org.osmplaces.model.OverpassElement;
-import org.osmplaces.model.ReviewServerElement;
-
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class ReviewServerProvider {
 	

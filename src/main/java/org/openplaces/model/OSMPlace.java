@@ -1,4 +1,4 @@
-package org.osmplaces.model;
+package org.openplaces.model;
 
 public class OSMPlace {
 	

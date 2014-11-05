@@ -1,17 +1,14 @@
-package org.osmplaces.providers;
+package org.openplaces.providers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.osmplaces.helpers.HttpHelper;
-import org.osmplaces.model.NominationElement;
-import org.osmplaces.model.OSMPlace;
+import org.openplaces.helpers.HttpHelper;
+import org.openplaces.model.NominationElement;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 
 public class NominatimProvider {
@@ -53,7 +50,7 @@ public class NominatimProvider {
 	private List<NominationElement> doSearch(Map<String, String> queryStringParams){
 		queryStringParams.put("format", "json");
 		queryStringParams.put("email", this.userEmail);
-		queryStringParams.put("addressdetails", "1");
+		//queryStringParams.put("addressdetails", "1");
 		
 		String url = this.server + "search?" + this.buildQueryString(queryStringParams);
 		

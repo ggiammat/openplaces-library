@@ -1,9 +1,9 @@
-package org.osmplaces.helpers;
+package org.openplaces.helpers;
 
-import org.osmplaces.model.NominationElement;
-import org.osmplaces.model.OSMPlace;
-import org.osmplaces.model.OverpassElement;
-import org.osmplaces.model.ReviewServerElement;
+import org.openplaces.model.NominationElement;
+import org.openplaces.model.OSMPlace;
+import org.openplaces.model.OverpassElement;
+import org.openplaces.model.ReviewServerElement;
 
 public class OSMPlaceHelper {
 

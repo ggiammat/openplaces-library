@@ -1,4 +1,6 @@
-package org.osmplaces.model;
+package org.openplaces.model;
+
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
 
@@ -10,6 +12,20 @@ public class NominationElement {
 	private Double lon;
 	private long osm_id;
 	private String osm_type;
+
+
+
+    @SerializedName("class") private String clazz;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    private String type;
 	
 	private String display_name;
 	private Double importance;
@@ -18,8 +34,14 @@ public class NominationElement {
 	public NominationElement(){
 		
 	}
-	
-	
+
+    public String getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
+    }
 	public Double getLat() {
 		return lat;
 	}
@@ -66,7 +88,7 @@ public class NominationElement {
 	
 	@Override
 	public String toString() {
-		return this.osm_type + "(" + this.osm_id+") " + this.address; 
+		return this.osm_type + "(" + this.osm_id+") " + this.clazz + ": "+this.type + " " + this.display_name;
 	}
 
 }

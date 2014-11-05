@@ -1,11 +1,11 @@
-package org.osmplaces.providers;
+package org.openplaces.providers;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.osmplaces.helpers.HttpHelper;
-import org.osmplaces.model.OverpassElement;
+import org.openplaces.helpers.HttpHelper;
+import org.openplaces.model.OverpassElement;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
