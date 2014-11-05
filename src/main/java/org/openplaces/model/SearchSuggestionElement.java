@@ -15,8 +15,8 @@ public class SearchSuggestionElement {
 
 	public SearchSuggestionElement(SuggestionType suggestionType, OverpassElement el){
 		this.suggestionType = suggestionType;
-		this.name = el.getTag("name");
-		this.osmAmenity = el.getTag("amenity");
+		this.name = el.getTag("name", null);
+		this.osmAmenity = el.getTag("amenity", null);
 		this.osmId = el.getId();
 	}
 	

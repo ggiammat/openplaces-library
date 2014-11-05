@@ -1,11 +1,15 @@
 package org.openplaces.providers;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.openplaces.helpers.HttpHelper;
+import org.openplaces.model.OPTagsFilter;
 import org.openplaces.model.OverpassElement;
+import org.openplaces.utils.OPBoundingBox;
+import org.openplaces.utils.OPGeoPoint;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -37,6 +41,24 @@ public class OverpassProvider {
 	}
 
 
+    public Collection<OverpassElement> getPlaces(OPTagsFilter filters, OPBoundingBox boundingBox){
+
+        String bbFilter = "(" +
+                boundingBox.getSouth() + "," +
+                boundingBox.getWest() + "," +
+                boundingBox.getNorth() + "," +
+                boundingBox.getEast() + ")";
+
+        String tagsFilter = filters.buildOverpassScript();
+
+        String script = "(" +
+                "node"+bbFilter+tagsFilter+";\n" +
+                "way"+bbFilter+tagsFilter+";\n" +
+                ">;\n" +
+                " );\n" +
+                "out body;";
+        return this.doQuery(script);
+    }
 
 
 
@@ -50,48 +72,17 @@ public class OverpassProvider {
 
 	/**
 	 * Very simple implementation. gets only nodes with a "place" tag
-	 * @param lat
-	 * @param lon
-	 * @param radius
-	 * @return
 	 */
-	public List<OverpassElement> getAroundLocations(double lat, double lon, int radius){
-		String script = "node(around:"+radius+","+lat+","+lon+")[\"place\"];out;";
-		return this.doQuery(script);
-	}
-	
-	
-	public List<OverpassElement> getPlaces(double lat, double lon, int radius, String amenity, String name){
-		
-		String nameMatching = "";
-		if(name != null){
-			nameMatching = "~\""+this.buildRegex(name)+"\"";
-		}
-		
-		String amenityMatching = "";
-		if(amenity != null){
-			amenityMatching = "=\""+amenity+"\"";
-		}
-		
-		String script = "node(around:"+radius+","+lat+","+lon+")[\"amenity\""+amenityMatching+"][\"name\""+nameMatching+"];out;";
+	public List<OverpassElement> getAroundLocations(OPGeoPoint point, int radius){
+		String script = "(" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"];" +
+                //not including relations because we do not know how to get lat-lon
+                //"relation(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"];" +
+                ");out;";
 		return this.doQuery(script);
 	}
 
-	
-	//TODO: search for upper and lower case for first letters.
-	//      E.g. Gioa mia and gioia mia -> "[gG]ioia [mM]ia"
 
-	private String buildRegex(String name) {
-		String res = "";
-		String[] words = name.trim().split("\\s+");
-		for (int i = 0; i < words.length; i++) {
-			Character firstLetter = words[i].charAt(0);
-			res = res + "["+firstLetter.toUpperCase(firstLetter)+firstLetter.toLowerCase(firstLetter)+"]"+words[i].substring(1)+" ";
-			
-		}
-		System.out.println("Returning " + res);
-		return res.trim();
-	}
 
 
 

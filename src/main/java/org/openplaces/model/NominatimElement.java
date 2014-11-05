@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
 
-public class NominationElement {
+public class NominatimElement {
 	
 	
 	
@@ -12,7 +12,7 @@ public class NominationElement {
 	private Double lon;
 	private long osm_id;
 	private String osm_type;
-
+    private double[] boundingbox;
 
 
     @SerializedName("class") private String clazz;
@@ -31,7 +31,7 @@ public class NominationElement {
 	private Double importance;
 	private Map<String, String> address;
 	
-	public NominationElement(){
+	public NominatimElement(){
 		
 	}
 
@@ -88,7 +88,14 @@ public class NominationElement {
 	
 	@Override
 	public String toString() {
-		return this.osm_type + "(" + this.osm_id+") " + this.clazz + ": "+this.type + " " + this.display_name;
+		return this.osm_type + "(" + this.osm_id+") " + this.clazz + ": "+this.type + " " + this.display_name + " " + this.boundingbox[0];
 	}
 
+    public double[] getBoundingbox() {
+        return boundingbox;
+    }
+
+    public void setBoundingbox(double[] boundingbox) {
+        this.boundingbox = boundingbox;
+    }
 }

@@ -10,6 +10,8 @@ public class OverpassElement {
 	private Double lon;
 	private Double lat;
 	private Map<String, String> tags;
+    private String type;
+    private long[] nodes;
 
 	public OverpassElement() {
 		super();
@@ -20,7 +22,10 @@ public class OverpassElement {
 		return this.tags.containsKey(tagName);
 	}
 	
-	public String getTag(String tagName){
+	public String getTag(String tagName, String def){
+        if(def!=null && !this.tags.containsKey(tagName)){
+            return def;
+        }
 		return this.tags.get(tagName);
 	}
 
@@ -39,7 +44,7 @@ public class OverpassElement {
 
 
 
-	public double getLon() {
+	public Double getLon() {
 		return lon;
 	}
 
@@ -53,7 +58,7 @@ public class OverpassElement {
 
 
 
-	public double getLat() {
+	public Double getLat() {
 		return lat;
 	}
 
@@ -86,4 +91,19 @@ public class OverpassElement {
 		return this.id + "(" + this.tags + ") at " + this.lat + "," + this.lon;
 	}
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public long[] getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(long[] nodes) {
+        this.nodes = nodes;
+    }
 }

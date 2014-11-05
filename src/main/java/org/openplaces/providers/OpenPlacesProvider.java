@@ -9,13 +9,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openplaces.helpers.HttpHelper;
-import org.openplaces.helpers.OSMPlaceHelper;
-import org.openplaces.model.NominationElement;
-import org.openplaces.model.OLocation;
-import org.openplaces.model.OSMPlace;
+import org.openplaces.model.NominatimElement;
+import org.openplaces.model.OPLocation;
+import org.openplaces.model.OPPlace;
+import org.openplaces.model.OPTagsFilter;
 import org.openplaces.model.OverpassElement;
 import org.openplaces.model.ReviewServerElement;
-import org.openplaces.model.SearchSuggestionElement;
+import org.openplaces.utils.GeoFunctions;
+import org.openplaces.utils.OPGeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,8 @@ public class OpenPlacesProvider {
 	private NominatimProvider nmp;
 	private OverpassProvider opp;
 	private ReviewServerProvider rsp;
+    private double maxSearchBoundingBox = 1000; //square km
+    private int maxSearchRadius = 50; // km
 	
 	
 	public OpenPlacesProvider(HttpHelper hh, String userEmail,
@@ -43,105 +46,166 @@ public class OpenPlacesProvider {
 	}
 
 
+    public List<OPPlace> getPlacesByFreeQuery(String name){
+        List<OPPlace> places = new LinkedList<OPPlace>();
+        List<NominatimElement> nmRes = this.nmp.search(name);
+
+        Map<Long, OPPlace> tmpMap = new HashMap<Long, OPPlace>();
+        for(NominatimElement n: nmRes){
+            OPPlace p = new OPPlace(n);
+            places.add(p);
+            tmpMap.put(n.getOsm_id(), p);
+        }
+
+        this.completeWithOSMData(tmpMap);
+
+        return places;
+    }
 
 
-    public Collection<OLocation> getLocationsByName(String name){
+    public List<OPLocation> getLocationsByName(String name){
 
-        List<NominationElement> nmRes = this.nmp.search(name);
+        List<OPLocation> locations = new LinkedList<OPLocation>();
+        List<NominatimElement> nmRes = this.nmp.search(name);
 
-        for(NominationElement n: nmRes){
+        for(NominatimElement n: nmRes){
             if(!"place".equals(n.getClazz()) && !"boundary".equals(n.getClazz())){
                 logger.debug("Discarding >>{}<< bacause it is neither a place nor a boundary", n);
                 continue;
             }
-            System.out.println(n);
+            locations.add(new OPLocation(n));
+        }
+
+        return locations;
+    }
+
+    public List<OPLocation> getLocationsAround(OPGeoPoint point, int radius){
+        if(radius > this.getMaxSearchRadius()){
+            logger.warn("Search radius is too big: {} km. Search will not be performed (max is {} km)", radius, this.getMaxSearchRadius());
+            return new LinkedList<OPLocation>();
+        }
+        List<OverpassElement> res = this.opp.getAroundLocations(point, radius * 1000);
+        List<OPLocation> returnObj = new LinkedList<OPLocation>();
+        for(OverpassElement el: res){
+            returnObj.add(new OPLocation(el));
+        }
+        return returnObj;
+    }
+
+
+    public void addBoundingBoxFromNominatim(OPLocation loc){
+
+        List<OPLocation> nlocs = this.getLocationsByName(loc.getDisplayName());
+        for(OPLocation nl: nlocs){
+            if(nl.getBoundingBox().contains(loc.getPosition())){
+                logger.debug("Setting bounding box from {}", nl);
+                loc.setBoundingBox(nl.getBoundingBox());
+                break;
+            }
+            logger.debug("Discarding because position not in the boundingbox: {}", nl);
+        }
+    }
+
+    public void reverseGeocodePlace(OPPlace place){
+        String type = "N";
+        if("way".equals(place.getOsmType())){
+            type = "W";
+        }
+        if("relation".equals(place.getOsmType())){
+            type = "R";
+        }
+        NominatimElement el = this.nmp.reverse(Long.toString(place.getId()), type);
+        place.loadDataFromNominatim(el);
+    }
+
+
+    public List<OPPlace> getPlaces(OPTagsFilter filters, OPLocation where){
+
+        if(where.getBoundingBox() == null){
+            logger.debug("Location boundingbox is null. Finding it from Nominatim");
+            this.addBoundingBoxFromNominatim(where);
+        }
+
+        if(GeoFunctions.boundingBoxArea(where.getBoundingBox()) > this.getMaxSearchBoundingBox()){
+            logger.warn("Bounding box is to large: {} sq. km. Search will not be performed (max is {} sq. km).", GeoFunctions.boundingBoxArea(where.getBoundingBox()), this.getMaxSearchBoundingBox());
+            return new LinkedList<OPPlace>();
+        }
+
+        Collection<OverpassElement> elements = this.opp.getPlaces(filters, where.getBoundingBox());
+
+        //to make it easy to access elements by id, put them in a map
+        Map<Long, OverpassElement> tempMap = new HashMap<Long, OverpassElement>();
+        for(OverpassElement el: elements){
+            tempMap.put(el.getId(), el);
         }
 
 
-        return null;
+        List<OPPlace> places = new LinkedList<OPPlace>();
+        for(OverpassElement el: elements){
+            if(el.getTags() == null){
+                //no tags. Assuming these are nodes referenced by a way which is in the resultset
+                continue;
+            }
+            if("node".equals(el.getType())){
+                places.add(new OPPlace(el));
+            }
+
+            if("way".equals(el.getType())){
+                OPPlace p = new OPPlace(el);
+                logger.debug("Way place found. Computing coordinates...");
+                OPGeoPoint[] points = new OPGeoPoint[el.getNodes().length];
+                for(int i = 0; i < el.getNodes().length; i++){
+                    OverpassElement n = tempMap.get(el.getNodes()[i]);
+                    points[i] = new OPGeoPoint(n.getLat(), n.getLon());
+                }
+                OPGeoPoint position = GeoFunctions.computeCentroid(points);
+                p.setPosition(position);
+                places.add(p);
+            }
+        }
+
+        return places;
     }
 
-    public Collection<OLocation> getLocationsAround(double lat, double lon, int radius){
-        //TODO... use overpass since Nominatim does not allow this type of search
-        return null;
+
+    private void completeWithOSMData(Map<Long, OPPlace> places){
+
+        if(places.isEmpty()) {
+            return;
+        }
+
+        logger.debug("Completing places data with Overpass for {} places", places.size());
+
+        Set<String[]> overPassInput = new HashSet<String[]>();
+        for(OPPlace p: places.values()){
+            overPassInput.add(new String[]{p.getOsmType(), Long.toString(p.getId())});
+        }
+        List<OverpassElement> opRes = opp.getFromCoordsList(overPassInput);
+
+        for(OverpassElement oe: opRes){
+            places.get(oe.getId()).loadDataFromOverpass(oe);
+        }
     }
-	
-	
-	
-	public Collection<SearchSuggestionElement> getPlacesSearchSuggestions(double lat, double lon, String amenity, String partialName){
-		List<OverpassElement> res = this.opp.getPlaces(lat, lon, 5000, amenity, partialName);
-		List<SearchSuggestionElement> returnObj = new LinkedList<SearchSuggestionElement>();
-		for(OverpassElement el: res){
-			returnObj.add(new SearchSuggestionElement(SearchSuggestionElement.SuggestionType.PLACE, el));
-		}
-		return returnObj;
-	}
-	
-	//TODO: use is_in, addr:city, etc... tags for building further suggestion
-	public Collection<SearchSuggestionElement> getAroundLocations(double lat, double lon){
-		List<OverpassElement> res = this.opp.getAroundLocations(lat, lon, 10000);
-		List<SearchSuggestionElement> returnObj = new LinkedList<SearchSuggestionElement>();
-		for(OverpassElement el: res){
-			returnObj.add(new SearchSuggestionElement(SearchSuggestionElement.SuggestionType.LOCATION, el));
-		}
-		return returnObj;
-	}
 	
  	
-	public void mergeReviewServerInfo(OSMPlace p){
+	public void mergeReviewServerInfo(OPPlace p){
 		ReviewServerElement res = this.rsp.getPlace(Long.toString(p.getId()));
-		OSMPlaceHelper.mergeWithReviewServerElement(p, res);
+		p.loadDataFromReviewServer(res);
 	}
-	
-	
-	public Collection<OSMPlace> searchInside(
-			double vbLeft, double vbTop, double vbRight, double vbBottom, String query){
-		
-		
-		Map<Long, OSMPlace> res = new HashMap<Long, OSMPlace>();
-		
-		List<NominationElement> nmRes = this.nmp.searchInside(vbLeft, vbTop, vbRight, vbBottom, query);
-		
-		for(NominationElement n: nmRes){
-			res.put(n.getOsm_id(), OSMPlaceHelper.createFromNominationElement(n));
-		}
-		
-		this.completeWithOSMData(res);
-		
-		return res.values();	
-	}
-	
-	
 
-	public Collection<OSMPlace> search(String query){
-		
-		Map<Long, OSMPlace> res = new HashMap<Long, OSMPlace>();
-		
-		List<NominationElement> nmRes = this.nmp.search(query);
-		
-		for(NominationElement n: nmRes){
-			res.put(n.getOsm_id(), OSMPlaceHelper.createFromNominationElement(n));
-		}
-		
-		this.completeWithOSMData(res);
-		
-		return res.values();
-	}
-	
-	
-	private void completeWithOSMData(Map<Long, OSMPlace> places){
-		
-		if(places.isEmpty())
-			return;
+    public double getMaxSearchBoundingBox() {
+        return maxSearchBoundingBox;
+    }
 
-		Set<String[]> overPassInput = new HashSet<String[]>();
-		for(OSMPlace p: places.values()){
-			overPassInput.add(new String[]{p.getOsmType(), Long.toString(p.getId())});
-		}
-		List<OverpassElement> opRes = opp.getFromCoordsList(overPassInput);
-		
-		for(OverpassElement oe: opRes){
-			OSMPlaceHelper.mergeWithOverpassElement(places.get(oe.getId()), oe);
-		}		
-	}
+    public void setMaxSearchBoundingBox(double maxSearchBoundingBox) {
+        this.maxSearchBoundingBox = maxSearchBoundingBox;
+    }
+
+    public int getMaxSearchRadius() {
+        return maxSearchRadius;
+    }
+
+    public void setMaxSearchRadius(int maxSearchRadius) {
+        this.maxSearchRadius = maxSearchRadius;
+    }
 }
