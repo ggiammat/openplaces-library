@@ -57,7 +57,7 @@ public class GeoFunctions {
         Collections.sort(locs, new Comparator<OPLocation>() {
             @Override
             public int compare(OPLocation opLocation, OPLocation opLocation2) {
-                if(distance(opLocation.getPosition(), point) < distance(opLocation2.getPosition(), point)){
+                if(distance(opLocation.getPosition(), point) > distance(opLocation2.getPosition(), point)){
                     return 1;
                 }
                 else {

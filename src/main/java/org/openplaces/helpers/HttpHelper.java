@@ -8,6 +8,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +18,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class HttpHelper {
-	
-	HttpHost proxy = null;
+
+    Logger logger = LoggerFactory.getLogger(HttpHelper.class);
+
+
+    HttpHost proxy = null;
 	
 	public void setHttpProxy(String host, int port){
 		this.proxy = new HttpHost(host, port);
@@ -54,7 +59,7 @@ public class HttpHelper {
 	}
 	
 	public String doGET(String url){
-		System.out.println("Calling: " + url);
+		logger.info("Calling {}", url);
 		
 		HttpClient client = this.buildClient();
 		HttpGet request = new HttpGet(url);

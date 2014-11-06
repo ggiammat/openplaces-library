@@ -10,15 +10,18 @@ import org.openplaces.model.OPTagsFilter;
 import org.openplaces.model.OverpassElement;
 import org.openplaces.utils.OPBoundingBox;
 import org.openplaces.utils.OPGeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class OverpassProvider {
-	
-		
-	private String server;
+
+    Logger logger = LoggerFactory.getLogger(OverpassProvider.class);
+
+    private String server;
 	private HttpHelper hh;
 	
 	public int overpassTimeout;
@@ -110,7 +113,7 @@ public class OverpassProvider {
 	}
 	
 	private List<OverpassElement> doQuery(String overpassQLScript){
-		System.out.println("Executing script:" + overpassQLScript);
+		logger.debug("Executing script:" + overpassQLScript);
 		String data = hh.encodeString("[out:json][timeout:"+this.overpassTimeout+"];" + overpassQLScript);
 		
 		String url = this.server + "?data=" + data;
