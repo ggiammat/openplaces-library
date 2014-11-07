@@ -21,7 +21,7 @@ public class OPLocation {
     public OPLocation(OverpassElement el){
         this.setId(el.getId());
         this.setDisplayName(el.getTag("name", null));
-        this.setType(el.getType());
+        this.setType(el.getTag("place", null));
         this.boundingBox = null;
         if(el.getLat() != null && el.getLon() != null){
             this.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
@@ -80,7 +80,7 @@ public class OPLocation {
 
     @Override
     public String toString() {
-        return this.getType() + " " + this.getDisplayName() + " at " + this.getBoundingBox();
+        return this.getType() + " " + this.getDisplayName() + " at " + this.getPosition();
     }
 
     public OPGeoPoint getPosition() {

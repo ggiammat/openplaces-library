@@ -71,16 +71,21 @@ public class OverpassProvider {
 	}
 
 
-
-
-	/**
-	 * Very simple implementation. gets only nodes with a "place" tag
-	 */
+    /**
+     * at the moment consider only nodes
+     * @param point
+     * @param radius
+     * @return
+     */
 	public List<OverpassElement> getAroundLocations(OPGeoPoint point, int radius){
 		String script = "(" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"];" +
-                //not including relations because we do not know how to get lat-lon
-                //"relation(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"village\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"hamlet\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"isolated_dwelling\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"town\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"suburb\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"neighbourhood\"];" +
+                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"city\"];" +
                 ");out;";
 		return this.doQuery(script);
 	}
