@@ -6,16 +6,17 @@ import java.util.Map;
 /**
  * Created by ggiammat on 11/5/14.
  */
-public class OPTagsFilter {
+public class OSMTagFilterGroup {
 
-    private Map<String, TagFilterOperation> operations = new HashMap<String, TagFilterOperation>();
+    private Map<String, OSMTagFilterPredicate> operations = new HashMap<String, OSMTagFilterPredicate>();
     private Map<String, String> values = new HashMap<String, String>();
 
-    public enum TagFilterOperation{
-        IS_EQUALS_TO, MATCHES, HAS_TAG
+
+    public enum OSMTagFilterPredicate {
+        IS_EQUALS_TO, MATCHES, HAS_TAG, HAS_NOT_TAG
     }
 
-    public OPTagsFilter setTagFilter(String tagName, TagFilterOperation op, String value){
+    public OSMTagFilterGroup setTagFilter(String tagName, OSMTagFilterPredicate op, String value){
 
         this.operations.put(tagName, op);
         this.values.put(tagName, value);
@@ -26,16 +27,18 @@ public class OPTagsFilter {
     public String buildOverpassScript(){
         String res = "";
         for(String tagName: this.operations.keySet()){
-            if(TagFilterOperation.IS_EQUALS_TO.equals(this.operations.get(tagName))){
+            if(OSMTagFilterPredicate.IS_EQUALS_TO.equals(this.operations.get(tagName))){
                 res += "[\"" + tagName + "\"=" + "\"" + this.values.get(tagName) + "\"]";
             }
-            if(TagFilterOperation.MATCHES.equals(this.operations.get(tagName))){
+            if(OSMTagFilterPredicate.MATCHES.equals(this.operations.get(tagName))){
                 res += "[\"" + tagName + "\"~" + "\"" + buildRegex(this.values.get(tagName)) + "\"]";
             }
-            if(TagFilterOperation.HAS_TAG.equals(this.operations.get(tagName))){
+            if(OSMTagFilterPredicate.HAS_TAG.equals(this.operations.get(tagName))){
                 res += "[\"" + tagName + "\"]";
             }
-
+            if(OSMTagFilterPredicate.HAS_NOT_TAG.equals(this.operations.get(tagName))){
+                res += "[~\"" + tagName + "\"]";
+            }
         }
         return res;
     }
@@ -54,5 +57,10 @@ public class OPTagsFilter {
         }
         System.out.println("Returning " + res);
         return res.trim();
+    }
+
+    @Override
+    public String toString() {
+        return this.buildOverpassScript();
     }
 }

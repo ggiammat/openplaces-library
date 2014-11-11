@@ -1,12 +1,13 @@
 package org.openplaces.providers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.openplaces.helpers.HttpHelper;
-import org.openplaces.model.OPTagsFilter;
+import org.openplaces.model.OSMTagFilterGroup;
 import org.openplaces.model.OverpassElement;
 import org.openplaces.utils.OPBoundingBox;
 import org.openplaces.utils.OPGeoPoint;
@@ -44,22 +45,33 @@ public class OverpassProvider {
 	}
 
 
-    public Collection<OverpassElement> getPlaces(OPTagsFilter filters, OPBoundingBox boundingBox){
+    public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes){
 
-        String bbFilter = "(" +
-                boundingBox.getSouth() + "," +
-                boundingBox.getWest() + "," +
-                boundingBox.getNorth() + "," +
-                boundingBox.getEast() + ")";
+        String script = "(";
 
-        String tagsFilter = filters.buildOverpassScript();
+        List<String> bbFilters = new ArrayList<String>();
+        for(OPBoundingBox bb: boundingBoxes){
+            bbFilters.add("(" +
+                    bb.getSouth() + "," +
+                    bb.getWest() + "," +
+                    bb.getNorth() + "," +
+                    bb.getEast() + ")");
+        }
 
-        String script = "(" +
-                "node"+bbFilter+tagsFilter+";\n" +
-                "way"+bbFilter+tagsFilter+";\n" +
-                ">;\n" +
-                " );\n" +
-                "out body;";
+        for(OSMTagFilterGroup filterGroup: filterGroups){
+            String tagsFilter = filterGroup.buildOverpassScript();
+            for(String bbFilter: bbFilters){
+                script +=
+                        "(\n" +
+                        "node"+bbFilter+tagsFilter+";\n" +
+                        "way"+bbFilter+tagsFilter+";>;\n" +
+                        ");\n";
+            }
+
+        }
+
+        script += ");out body;\n";
+
         return this.doQuery(script);
     }
 
@@ -77,7 +89,7 @@ public class OverpassProvider {
      * @param radius
      * @return
      */
-	public List<OverpassElement> getAroundLocations(OPGeoPoint point, int radius){
+	public List<OverpassElement> getAroundLocations(OPGeoPoint point, long radius){
 		String script = "(" +
                 "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"village\"];" +
                 "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"hamlet\"];" +
@@ -118,7 +130,7 @@ public class OverpassProvider {
 	}
 	
 	private List<OverpassElement> doQuery(String overpassQLScript){
-		logger.debug("Executing script:" + overpassQLScript);
+		logger.debug("Executing script:\n" + overpassQLScript);
 		String data = hh.encodeString("[out:json][timeout:"+this.overpassTimeout+"];" + overpassQLScript);
 		
 		String url = this.server + "?data=" + data;

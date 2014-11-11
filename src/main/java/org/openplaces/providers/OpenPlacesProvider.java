@@ -1,5 +1,6 @@
 package org.openplaces.providers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,10 +13,12 @@ import org.openplaces.helpers.HttpHelper;
 import org.openplaces.model.NominatimElement;
 import org.openplaces.model.OPLocation;
 import org.openplaces.model.OPPlace;
-import org.openplaces.model.OPTagsFilter;
+import org.openplaces.model.OSMTagFilterGroup;
 import org.openplaces.model.OverpassElement;
 import org.openplaces.model.ReviewServerElement;
+import org.openplaces.types.OPPlaceType;
 import org.openplaces.utils.GeoFunctions;
+import org.openplaces.utils.OPBoundingBox;
 import org.openplaces.utils.OPGeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,12 +82,12 @@ public class OpenPlacesProvider {
         return locations;
     }
 
-    public List<OPLocation> getLocationsAround(OPGeoPoint point, int radius){
+    public List<OPLocation> getLocationsAround(OPGeoPoint point, double radius){
         if(radius > this.getMaxSearchRadius()){
             logger.warn("Search radius is too big: {} km. Search will not be performed (max is {} km)", radius, this.getMaxSearchRadius());
             return new LinkedList<OPLocation>();
         }
-        List<OverpassElement> res = this.opp.getAroundLocations(point, radius * 1000);
+        List<OverpassElement> res = this.opp.getAroundLocations(point, Math.round(radius * 1000));
         List<OPLocation> returnObj = new LinkedList<OPLocation>();
         for(OverpassElement el: res){
             returnObj.add(new OPLocation(el));
@@ -119,19 +122,28 @@ public class OpenPlacesProvider {
     }
 
 
-    public List<OPPlace> getPlaces(OPTagsFilter filters, OPLocation where){
+    public List<OPPlace> getPlaces(List<OPPlaceType> types, List<OPLocation> where){
 
-        if(where.getBoundingBox() == null){
-            logger.debug("Location boundingbox is null. Finding it from Nominatim");
-            this.addBoundingBoxFromNominatim(where);
+        List<OPBoundingBox> bboxes = new ArrayList<OPBoundingBox>();
+
+        for(OPLocation loc: where){
+            if(loc.getBoundingBox() == null){
+                logger.debug("Location boundingbox is null. Finding it from Nominatim");
+                this.addBoundingBoxFromNominatim(loc);
+            }
+            if(GeoFunctions.boundingBoxArea(loc.getBoundingBox()) > this.getMaxSearchBoundingBox()){
+                logger.warn("Bounding box is to large: {} sq. km. Search will not be performed (max is {} sq. km).", GeoFunctions.boundingBoxArea(loc.getBoundingBox()), this.getMaxSearchBoundingBox());
+                return new LinkedList<OPPlace>();
+            }
+            bboxes.add(loc.getBoundingBox());
         }
 
-        if(GeoFunctions.boundingBoxArea(where.getBoundingBox()) > this.getMaxSearchBoundingBox()){
-            logger.warn("Bounding box is to large: {} sq. km. Search will not be performed (max is {} sq. km).", GeoFunctions.boundingBoxArea(where.getBoundingBox()), this.getMaxSearchBoundingBox());
-            return new LinkedList<OPPlace>();
+        List<OSMTagFilterGroup> filters = new ArrayList<OSMTagFilterGroup>();
+        for(OPPlaceType type: types){
+            filters.addAll(type.getOsmTagFilterGroups());
         }
 
-        Collection<OverpassElement> elements = this.opp.getPlaces(filters, where.getBoundingBox());
+        Collection<OverpassElement> elements = this.opp.getPlaces(filters, bboxes);
 
         //to make it easy to access elements by id, put them in a map
         Map<Long, OverpassElement> tempMap = new HashMap<Long, OverpassElement>();
