@@ -1,5 +1,6 @@
-package org.openplaces.types;
+package org.openplaces.model.impl;
 
+import org.openplaces.model.OPPlaceCategoryInterface;
 import org.openplaces.model.OSMTagFilterGroup;
 
 import java.util.List;
@@ -8,21 +9,21 @@ import java.util.Map;
 /**
  * Created by ggiammat on 11/11/14.
  */
-public class OPPlaceType {
+public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
 
     private String name;
-    private String category;
+    private String type;
     private List<OSMTagFilterGroup> osmTagFilterGroups;
 
     Map<String, String> localization;
 
 
-    public String getCategory() {
-        return category;
+    public String getType() {
+        return type;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -35,7 +36,7 @@ public class OPPlaceType {
 
     @Override
     public String toString() {
-        return this.getName() + " (" + this.getCategory() + "), tags: " + this.osmTagFilterGroups + ", names: " + this.localization.values();
+        return this.getName() + " (" + this.getType() + "), tags: " + this.osmTagFilterGroups + ", names: " + this.localization.values();
     }
 
     public void setOsmTagFilterGroups(List<OSMTagFilterGroup> osmTagFilterGroups) {

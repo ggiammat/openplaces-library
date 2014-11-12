@@ -1,12 +1,12 @@
-package org.openplaces.providers;
+package org.openplaces.internal;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openplaces.helpers.HttpHelper;
-import org.openplaces.model.NominatimElement;
+import org.openplaces.utils.HttpHelper;
+import org.openplaces.internal.model.NominatimElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

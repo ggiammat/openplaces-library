@@ -1,7 +1,7 @@
-package org.openplaces.providers;
+package org.openplaces.internal;
 
-import org.openplaces.helpers.HttpHelper;
-import org.openplaces.model.ReviewServerElement;
+import org.openplaces.utils.HttpHelper;
+import org.openplaces.internal.model.ReviewServerElement;
 
 import com.google.gson.Gson;
 

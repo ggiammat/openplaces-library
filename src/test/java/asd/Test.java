@@ -1,13 +1,12 @@
 package asd;
 
-import org.openplaces.helpers.HttpHelper;
-import org.openplaces.model.OPLocation;
-import org.openplaces.model.OPPlace;
-import org.openplaces.model.OSMTagFilterGroup;
-import org.openplaces.providers.OpenPlacesProvider;
-import org.openplaces.types.OPPlaceTypesLibrary;
+import org.openplaces.model.OPLocationInterface;
+import org.openplaces.model.OPPlaceCategoriesLibrary;
+import org.openplaces.model.OPPlaceInterface;
 import org.openplaces.utils.GeoFunctions;
-import org.openplaces.utils.OPGeoPoint;
+import org.openplaces.utils.HttpHelper;
+import org.openplaces.OpenPlacesProvider;
+import org.openplaces.model.OPGeoPoint;
 
 import java.util.List;
 
@@ -27,24 +26,23 @@ public class Test {
 
 
 
-        List<OPLocation> locations2 = osmp.getLocationsAround(new OPGeoPoint(41.73d, 12.84d), 2.55555555);
-        for(OPLocation loc: locations2){
-            System.out.println(locations2.indexOf(loc) + " " +loc);
-        }
+//        List<OPLocationInterface> locations2 = osmp.getLocationsAround(new OPGeoPoint(41.73d, 12.84d), 2.55555555);
+//        for(OPLocationInterface loc: locations2){
+//            System.out.println(locations2.indexOf(loc) + " " +loc);
+//        }
 
-        OPPlaceTypesLibrary r = OPPlaceTypesLibrary.loadFromFile("/home/ggiammat/projects/P.OSMPlaces/workspace/openplaces-library/src/test/resources/default-types-library.json");
+
+        OPLocationInterface loc = osmp.getLocationsByName("Velletri").get(0);
+
+        OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/ggiammat/projects/P.OSMPlaces/workspace/openplaces-library/src/test/resources/default-categories-library.json");
         System.out.println(r);
 
-        List<OPPlace> res = osmp.getPlaces(r.getTypes().subList(2, 3), locations2);
+        List<OPPlaceInterface> res = osmp.getPlaces(r.getCategories().get(3), loc);
 
-        for(OPPlace p: res){
+        for(OPPlaceInterface p: res){
             System.out.println(p);
         }
 
-//        GeoFunctions.sortByDistanceFromPoint(locations2, new OPGeoPoint(41.73d, 12.84d));
-//        for(OPLocation loc: locations2){
-//            System.out.println(locations2.indexOf(loc) + " " +loc);
-//        }
 
 
 	}

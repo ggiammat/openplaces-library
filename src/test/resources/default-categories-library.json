@@ -7,11 +7,11 @@ library-version: 1.0.0,
 released-on: "2014-11-11",
 
 #and then, the actual places types defined in the library
-types:[
+categories:[
 {
 
  name: test,
- category: food,
+ type: food,
  description: "this is the description",
 
  #an array of osm tag filter groups. They are used in OR
@@ -38,7 +38,7 @@ types:[
 ###############################################################################
 {
  name: restaurant,
- category: food,
+ type: food,
  description: "place with sit-down facilities selling full meals",
  osm-tag-filter-groups: [{amenity: {IS_EQUALS_TO: restaurant}}],
  localization: {
@@ -50,7 +50,7 @@ types:[
 },
 {
  name: "regional restaurant",
- category: food,
+ type: food,
  description: "place with sit-down facilities selling full meals",
  osm-tag-filter-groups: [{amenity: {IS_EQUALS_TO: restaurant}, cuisine: {IS_EQUALS_TO: regional}}],
  localization: {
@@ -62,7 +62,7 @@ types:[
 },
 {
  name: "chinese restaurant",
- category: food,
+ type: food,
  description: "place with sit-down facilities selling full meals",
  osm-tag-filter-groups: [{amenity: {IS_EQUALS_TO: restaurant}, cuisine: {IS_EQUALS_TO: chinese}}],
  localization: {
@@ -74,7 +74,7 @@ types:[
 },
 {
  name: pizzeria,
- category: food,
+ type: food,
  description: "place with sit-down facilities selling full meals",
  osm-tag-filter-groups: [{amenity: {IS_EQUALS_TO: restaurant}, cuisine: {IS_EQUALS_TO: pizza}}],
  localization: {
@@ -86,7 +86,7 @@ types:[
 },
 {
  name: "pizza take away",
- category: food,
+ type: food,
  description: "places that sells pizza take away",
  osm-tag-filter-groups: [{amenity: {IS_EQUALS_TO: fast_food}, cuisine: {IS_EQUALS_TO: pizza}}],
  localization: {

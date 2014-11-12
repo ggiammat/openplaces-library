@@ -1,10 +1,11 @@
 package org.openplaces.utils;
 
-import org.openplaces.model.OPLocation;
+import org.openplaces.model.OPBoundingBox;
+import org.openplaces.model.OPGeoPoint;
+import org.openplaces.model.impl.OPLocationImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.geom.Point2D;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -53,10 +54,10 @@ public class GeoFunctions {
         return d * 1000;
     }
 
-    public static void sortByDistanceFromPoint(List<OPLocation> locs, final OPGeoPoint point){
-        Collections.sort(locs, new Comparator<OPLocation>() {
+    public static void sortByDistanceFromPoint(List<OPLocationImpl> locs, final OPGeoPoint point){
+        Collections.sort(locs, new Comparator<OPLocationImpl>() {
             @Override
-            public int compare(OPLocation opLocation, OPLocation opLocation2) {
+            public int compare(OPLocationImpl opLocation, OPLocationImpl opLocation2) {
                 if(distance(opLocation.getPosition(), point) > distance(opLocation2.getPosition(), point)){
                     return 1;
                 }

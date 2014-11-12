@@ -1,4 +1,4 @@
-package org.openplaces.model;
+package org.openplaces.internal.model;
 
 import com.google.gson.annotations.SerializedName;
 

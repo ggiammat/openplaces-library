@@ -1,4 +1,4 @@
-package org.openplaces.providers;
+package org.openplaces.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,11 +6,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.openplaces.helpers.HttpHelper;
+import org.openplaces.utils.HttpHelper;
 import org.openplaces.model.OSMTagFilterGroup;
-import org.openplaces.model.OverpassElement;
-import org.openplaces.utils.OPBoundingBox;
-import org.openplaces.utils.OPGeoPoint;
+import org.openplaces.internal.model.OverpassElement;
+import org.openplaces.model.OPBoundingBox;
+import org.openplaces.model.OPGeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

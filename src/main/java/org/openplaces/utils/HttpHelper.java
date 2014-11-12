@@ -1,4 +1,4 @@
-package org.openplaces.helpers;
+package org.openplaces.utils;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;

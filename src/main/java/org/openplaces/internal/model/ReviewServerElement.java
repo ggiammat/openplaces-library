@@ -1,4 +1,4 @@
-package org.openplaces.model;
+package org.openplaces.internal.model;
 
 public class ReviewServerElement {
 

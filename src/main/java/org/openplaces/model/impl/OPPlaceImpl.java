@@ -1,13 +1,17 @@
-package org.openplaces.model;
+package org.openplaces.model.impl;
 
-import org.openplaces.utils.OPGeoPoint;
+import org.openplaces.internal.model.NominatimElement;
+import org.openplaces.internal.model.OverpassElement;
+import org.openplaces.internal.model.ReviewServerElement;
+import org.openplaces.model.OPGeoPoint;
+import org.openplaces.model.OPPlaceInterface;
 
 import java.util.Map;
 
 /**
  * Created by ggiammat on 11/5/14.
  */
-public class OPPlace {
+public class OPPlaceImpl implements OPPlaceInterface {
 
 
     private long id;
@@ -21,42 +25,8 @@ public class OPPlace {
     private String type;
 
 
-    public OPPlace(OverpassElement el) {
-        this.loadDataFromOverpass(el);
-    }
+    public OPPlaceImpl(){
 
-
-    public OPPlace(NominatimElement el) {
-        this.loadDataFromNominatim(el);
-    }
-
-
-    public void loadDataFromOverpass(OverpassElement el){
-        this.setId(el.getId());
-        this.setName(el.getTag("name", null));
-        this.setOsmType(el.getType());
-        //if position is available from overpass, overwrite current position
-        //(the position from Nominatim might be computed and not from OSM data)
-        if(el.getLat() != null && el.getLon() != null) {
-            this.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
-        }
-    }
-
-    public void loadDataFromNominatim(NominatimElement el){
-        this.setId(el.getOsm_id());
-        this.setOsmType(el.getOsm_type());
-        //if position is already set (with overpass) do not overwrite
-        if(this.getPosition() == null && el.getLat() != null && el.getLon() != null) {
-            this.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
-        }
-        this.setAddressString(el.getDisplay_name());
-        this.setAddressTokens(el.getAddress());
-        this.setType(el.getType());
-    }
-
-    public void loadDataFromReviewServer(ReviewServerElement re){
-        this.setNumReviews(re.getNumReviews());
-        this.setAverageRating(re.getAverageRating());
     }
 
     public String getName() {

@@ -1,12 +1,15 @@
-package org.openplaces.model;
+package org.openplaces.model.impl;
 
-import org.openplaces.utils.OPBoundingBox;
-import org.openplaces.utils.OPGeoPoint;
+import org.openplaces.internal.model.NominatimElement;
+import org.openplaces.internal.model.OverpassElement;
+import org.openplaces.model.OPBoundingBox;
+import org.openplaces.model.OPGeoPoint;
+import org.openplaces.model.OPLocationInterface;
 
 /**
  * Created by ggiammat on 11/5/14.
  */
-public class OPLocation {
+public class OPLocationImpl implements OPLocationInterface {
 
     private long id;
     private String displayName;
@@ -14,11 +17,8 @@ public class OPLocation {
     private OPGeoPoint position;
     private OPBoundingBox boundingBox;
 
-    public OPLocation(){
 
-    }
-
-    public OPLocation(OverpassElement el){
+    public OPLocationImpl(OverpassElement el){
         this.setId(el.getId());
         this.setDisplayName(el.getTag("name", null));
         this.setType(el.getTag("place", null));
@@ -28,7 +28,7 @@ public class OPLocation {
         }
     }
 
-    public OPLocation(NominatimElement el){
+    public OPLocationImpl(NominatimElement el){
         this.setId(el.getOsm_id());
         this.setDisplayName(el.getDisplay_name());
         this.setType(el.getType());

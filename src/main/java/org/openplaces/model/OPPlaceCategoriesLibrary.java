@@ -1,10 +1,9 @@
-package org.openplaces.types;
+package org.openplaces.model;
 
 import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.openplaces.model.OSMTagFilterGroup;
+import org.openplaces.utils.OPPlaceCategoryInstanceDeserializer;
 import org.openplaces.utils.OSMTagFilterGroupJSONDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +15,17 @@ import java.util.List;
 /**
  * Created by ggiammat on 11/11/14.
  */
-public class OPPlaceTypesLibrary {
+public class OPPlaceCategoriesLibrary {
 
     private String libraryName;
     private String libraryVersion;
-    private List<OPPlaceType> types;
+    private List<OPPlaceCategoryInterface> categories;
     private Date releasedOn;
 
-    static Logger logger = LoggerFactory.getLogger(OPPlaceTypesLibrary.class);
+    static Logger logger = LoggerFactory.getLogger(OPPlaceCategoriesLibrary.class);
 
 
-    public static OPPlaceTypesLibrary loadFromFile(String jsonConfigFile){
+    public static OPPlaceCategoriesLibrary loadFromFile(String jsonConfigFile){
         logger.debug("Loading library from file: " + jsonConfigFile);
 
 
@@ -36,8 +35,9 @@ public class OPPlaceTypesLibrary {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES);
             gsonBuilder.registerTypeAdapter(OSMTagFilterGroup.class, new OSMTagFilterGroupJSONDeserializer());
+            gsonBuilder.registerTypeAdapter(OPPlaceCategoryInterface.class, new OPPlaceCategoryInstanceDeserializer());
             gsonBuilder.setDateFormat("yyyy-MM-dd");
-            return gsonBuilder.create().fromJson(fileReader, OPPlaceTypesLibrary.class);
+            return gsonBuilder.create().fromJson(fileReader, OPPlaceCategoriesLibrary.class);
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -68,19 +68,19 @@ public class OPPlaceTypesLibrary {
         sb.append("=== Place Types Library===\n");
         sb.append("Name: " + this.getLibraryName() + ", Version: " + this.getLibraryVersion()+" (released on: "+this.releasedOn+")\n");
         sb.append("Types:\n");
-        for(OPPlaceType type: this.getTypes()){
+        for(OPPlaceCategoryInterface type: this.getCategories()){
             sb.append("* " + type.toString() + "\n");
         }
         sb.append("==========================\n");
         return sb.toString();
     }
 
-    public List<OPPlaceType> getTypes() {
-        return types;
+    public List<OPPlaceCategoryInterface> getCategories() {
+        return categories;
     }
 
-    public void setTypes(List<OPPlaceType> types) {
-        this.types = types;
+    public void setCategories(List<OPPlaceCategoryInterface> categories) {
+        this.categories = categories;
     }
 
     public Date getReleasedOn() {
