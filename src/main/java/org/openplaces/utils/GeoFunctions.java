@@ -2,6 +2,7 @@ package org.openplaces.utils;
 
 import org.openplaces.model.OPBoundingBox;
 import org.openplaces.model.OPGeoPoint;
+import org.openplaces.model.OPLocationInterface;
 import org.openplaces.model.impl.OPLocationImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +55,10 @@ public class GeoFunctions {
         return d * 1000;
     }
 
-    public static void sortByDistanceFromPoint(List<OPLocationImpl> locs, final OPGeoPoint point){
-        Collections.sort(locs, new Comparator<OPLocationImpl>() {
+    public static void sortByDistanceFromPoint(List<OPLocationInterface> locs, final OPGeoPoint point){
+        Collections.sort(locs, new Comparator<OPLocationInterface>() {
             @Override
-            public int compare(OPLocationImpl opLocation, OPLocationImpl opLocation2) {
+            public int compare(OPLocationInterface opLocation, OPLocationInterface opLocation2) {
                 if(distance(opLocation.getPosition(), point) > distance(opLocation2.getPosition(), point)){
                     return 1;
                 }
