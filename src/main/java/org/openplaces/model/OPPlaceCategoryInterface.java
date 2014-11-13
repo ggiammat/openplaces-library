@@ -1,6 +1,7 @@
 package org.openplaces.model;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ggiammat on 11/12/14.
@@ -18,4 +19,8 @@ public interface OPPlaceCategoryInterface {
     public void setOsmTagFilterGroups(List<OSMTagFilterGroup> osmTagFilterGroups);
 
     public List<OSMTagFilterGroup> getOsmTagFilterGroups();
+
+    public Map<String, String> getLocalizedNames();
+
+    public void setLocalization(Map<String, String> localization);
 }

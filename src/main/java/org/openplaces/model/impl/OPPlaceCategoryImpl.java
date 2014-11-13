@@ -15,7 +15,7 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
     private String type;
     private List<OSMTagFilterGroup> osmTagFilterGroups;
 
-    Map<String, String> localization;
+    private Map<String, String> localization;
 
 
     public String getType() {
@@ -45,5 +45,13 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
 
     public List<OSMTagFilterGroup> getOsmTagFilterGroups(){
         return this.osmTagFilterGroups;
+    }
+
+    public void setLocalization(Map<String, String> localization) {
+        this.localization = localization;
+    }
+
+    public Map<String, String> getLocalizedNames(){
+        return this.localization;
     }
 }

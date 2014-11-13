@@ -8,7 +8,12 @@ import org.openplaces.utils.OSMTagFilterGroupJSONDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Date;
 import java.util.List;
 
@@ -25,25 +30,32 @@ public class OPPlaceCategoriesLibrary {
     static Logger logger = LoggerFactory.getLogger(OPPlaceCategoriesLibrary.class);
 
 
-    public static OPPlaceCategoriesLibrary loadFromFile(String jsonConfigFile){
-        logger.debug("Loading library from file: " + jsonConfigFile);
-
-
+    public static OPPlaceCategoriesLibrary loadFromResource(InputStream is){
         try {
-            FileReader fileReader = new FileReader(jsonConfigFile);
+            Reader reader = new InputStreamReader(is);
 
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES);
             gsonBuilder.registerTypeAdapter(OSMTagFilterGroup.class, new OSMTagFilterGroupJSONDeserializer());
             gsonBuilder.registerTypeAdapter(OPPlaceCategoryInterface.class, new OPPlaceCategoryInstanceDeserializer());
             gsonBuilder.setDateFormat("yyyy-MM-dd");
-            return gsonBuilder.create().fromJson(fileReader, OPPlaceCategoriesLibrary.class);
+            return gsonBuilder.create().fromJson(reader, OPPlaceCategoriesLibrary.class);
         }
         catch (Exception ex){
             ex.printStackTrace();
         }
 
         return null;
+    }
+    public static OPPlaceCategoriesLibrary loadFromFile(String jsonConfigFile) {
+        logger.debug("Loading library from file: " + jsonConfigFile);
+
+        try {
+            return loadFromResource(new FileInputStream(jsonConfigFile));
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     public String getLibraryName() {
