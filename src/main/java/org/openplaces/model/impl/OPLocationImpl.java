@@ -17,6 +17,9 @@ public class OPLocationImpl implements OPLocationInterface {
     private OPGeoPoint position;
     private OPBoundingBox boundingBox;
 
+    public OPLocationImpl(){
+
+    }
 
     public OPLocationImpl(OverpassElement el){
         this.setId(el.getId());
