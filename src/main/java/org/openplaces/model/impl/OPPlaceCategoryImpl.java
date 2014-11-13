@@ -18,6 +18,20 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
     private Map<String, String> localization;
 
 
+    public String getFirstNameMatch(String text){
+        if(this.getName().toLowerCase().contains(text)){
+            return this.getName();
+        }
+        for(String n: this.getLocalizedNames().values()){
+            if(n.toLowerCase().contains(text)){
+                return n;
+            }
+        }
+
+        return null;
+    }
+
+
     public String getType() {
         return type;
     }

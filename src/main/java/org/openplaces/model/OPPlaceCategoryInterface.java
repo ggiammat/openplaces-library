@@ -23,4 +23,6 @@ public interface OPPlaceCategoryInterface {
     public Map<String, String> getLocalizedNames();
 
     public void setLocalization(Map<String, String> localization);
+
+    public String getFirstNameMatch(String text);
 }
