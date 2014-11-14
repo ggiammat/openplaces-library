@@ -1,8 +1,10 @@
 package asd;
 
+import org.openplaces.model.OPBoundingBox;
 import org.openplaces.model.OPLocationInterface;
 import org.openplaces.model.OPPlaceCategoriesLibrary;
 import org.openplaces.model.OPPlaceInterface;
+import org.openplaces.model.impl.OPLocationImpl;
 import org.openplaces.utils.GeoFunctions;
 import org.openplaces.utils.HttpHelper;
 import org.openplaces.OpenPlacesProvider;
@@ -13,6 +15,13 @@ import java.util.List;
 public class Test {
 
 	public static void main(String[] args) {
+
+        OPGeoPoint center = new OPGeoPoint(41.73d, 12.84d);
+        OPBoundingBox bb = GeoFunctions.generateBoundingBox(center, 1);
+        System.out.println(bb);
+        System.out.println(GeoFunctions.boundingBoxArea(bb));
+
+        System.exit(0);
 
 		HttpHelper hh = new HttpHelper();
 		
