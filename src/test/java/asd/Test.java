@@ -16,12 +16,12 @@ public class Test {
 
 	public static void main(String[] args) {
 
-        OPGeoPoint center = new OPGeoPoint(41.73d, 12.84d);
-        OPBoundingBox bb = GeoFunctions.generateBoundingBox(center, 1);
-        System.out.println(bb);
-        System.out.println(GeoFunctions.boundingBoxArea(bb));
-
-        System.exit(0);
+//        OPGeoPoint center = new OPGeoPoint(41.73d, 12.84d);
+//        OPBoundingBox bb = GeoFunctions.generateBoundingBox(center, 1);
+//        System.out.println(bb);
+//        System.out.println(GeoFunctions.boundingBoxArea(bb));
+//
+//        System.exit(0);
 
 		HttpHelper hh = new HttpHelper();
 		
@@ -41,12 +41,12 @@ public class Test {
 //        }
 
 
-        OPLocationInterface loc = osmp.getLocationsByName("Velletri").get(0);
+        OPLocationInterface loc = osmp.getLocationsByName("Ponte Galeria").get(0);
 
         OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/ggiammat/projects/P.OSMPlaces/workspace/openplaces-library/src/test/resources/default-categories-library.json");
         System.out.println(r);
 
-        List<OPPlaceInterface> res = osmp.getPlaces(r.getCategories().get(3), loc);
+        List<OPPlaceInterface> res = osmp.getPlaces(r.getCategories().get(1), loc, "ivano");
 
         for(OPPlaceInterface p: res){
             System.out.println(p);
