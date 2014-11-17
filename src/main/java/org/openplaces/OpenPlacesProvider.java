@@ -18,7 +18,6 @@ import org.openplaces.model.OPLocationInterface;
 import org.openplaces.model.OPPlaceCategoryInterface;
 import org.openplaces.model.OPPlaceInterface;
 import org.openplaces.model.impl.OPLocationImpl;
-import org.openplaces.model.impl.OPPlaceCategoryImpl;
 import org.openplaces.utils.HttpHelper;
 import org.openplaces.internal.model.NominatimElement;
 import org.openplaces.model.OSMTagFilterGroup;
@@ -34,8 +33,10 @@ import org.slf4j.LoggerFactory;
 public class OpenPlacesProvider {
 
     Logger logger = LoggerFactory.getLogger(OpenPlacesProvider.class);
-	
-	public static final String OVERPASS_SERVER = "http://overpass.osm.rambler.ru/cgi/interpreter";
+
+    //http://overpass.osm.rambler.ru/cgi/interpreter does not support "center" action
+	public static final String OVERPASS_SERVER = "http://overpass-api.de/api/interpreter";
+
 	public static final String NOMINATIM_SERVER = "http://nominatim.openstreetmap.org/";
 	public static final String REVIEW_SERVER_SERVER = "http://osmplaces-gi4mmyz.rhcloud.com/rest";
 	
@@ -73,6 +74,24 @@ public class OpenPlacesProvider {
         return places;
     }
 
+    /**
+     *
+     * @param placesTypesAndIds each element in the form "type:id". E.g "node:123", "way:456"
+     * @return
+     */
+    public List<OPPlaceInterface> getPlacesByTypesAndIds(Set<String> placesTypesAndIds){
+        List<OPPlaceInterface> res = new ArrayList<OPPlaceInterface>();
+        if(placesTypesAndIds.isEmpty()) {
+            return res;
+        }
+
+        List<OverpassElement> opRes = opp.getFromTypeAndId(placesTypesAndIds);
+
+        for(OverpassElement oe: opRes){
+            res.add(OPPlaceHelper.createFromOverpassElement(oe));
+        }
+        return res;
+    }
 
     public List<OPLocationInterface> getLocationsByName(String name){
 
@@ -174,26 +193,31 @@ public class OpenPlacesProvider {
 
         List<OPPlaceInterface> places = new LinkedList<OPPlaceInterface>();
         for(OverpassElement el: elements){
-            if(el.getTags() == null){
-                //no tags. Assuming these are nodes referenced by a way which is in the resultset
-                continue;
-            }
-            if("node".equals(el.getType())){
-                places.add(OPPlaceHelper.createFromOverpassElement(el));
-            }
 
-            if("way".equals(el.getType())){
-                OPPlaceInterface p = OPPlaceHelper.createFromOverpassElement(el);
-                logger.debug("Way place found. Computing coordinates...");
-                OPGeoPoint[] points = new OPGeoPoint[el.getNodes().length];
-                for(int i = 0; i < el.getNodes().length; i++){
-                    OverpassElement n = tempMap.get(el.getNodes()[i]);
-                    points[i] = new OPGeoPoint(n.getLat(), n.getLon());
-                }
-                OPGeoPoint position = GeoFunctions.computeCentroid(points);
-                p.setPosition(position);
-                places.add(p);
-            }
+
+            places.add(OPPlaceHelper.createFromOverpassElement(el));
+
+            //not necessary since "center" action in the query returns the center for areas in the
+            //"center" tag of the response
+//            if(el.getTags() == null){
+//                //no tags. Assuming these are nodes referenced by a way which is in the resultset
+//                continue;
+//            }
+//            if("node".equals(el.getType())){
+//                places.add(OPPlaceHelper.createFromOverpassElement(el));
+//            }
+//            if("way".equals(el.getType())){
+//                OPPlaceInterface p = OPPlaceHelper.createFromOverpassElement(el);
+//                logger.debug("Way place found. Computing coordinates...");
+//                OPGeoPoint[] points = new OPGeoPoint[el.getNodes().length];
+//                for(int i = 0; i < el.getNodes().length; i++){
+//                    OverpassElement n = tempMap.get(el.getNodes()[i]);
+//                    points[i] = new OPGeoPoint(n.getLat(), n.getLon());
+//                }
+//                OPGeoPoint position = GeoFunctions.computeCentroid(points);
+//                p.setPosition(position);
+//                places.add(p);
+//            }
         }
 
         return places;
@@ -208,11 +232,11 @@ public class OpenPlacesProvider {
 
         logger.debug("Completing places data with Overpass for {} places", places.size());
 
-        Set<String[]> overPassInput = new HashSet<String[]>();
+        Set<String> overPassInput = new HashSet<String>();
         for(OPPlaceInterface p: places.values()){
-            overPassInput.add(new String[]{p.getOsmType(), Long.toString(p.getId())});
+            overPassInput.add(p.getOsmType() + ":" + Long.toString(p.getId()));
         }
-        List<OverpassElement> opRes = opp.getFromCoordsList(overPassInput);
+        List<OverpassElement> opRes = opp.getFromTypeAndId(overPassInput);
 
         for(OverpassElement oe: opRes){
             OPPlaceHelper.loadDataFromOverpass(places.get(oe.getId()), oe);

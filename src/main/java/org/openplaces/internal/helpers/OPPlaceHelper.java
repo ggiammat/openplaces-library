@@ -28,6 +28,9 @@ public class OPPlaceHelper {
         if(el.getLat() != null && el.getLon() != null) {
             place.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
         }
+        else if(el.getCenter() != null) {
+            place.setPosition(new OPGeoPoint(el.getCenter().get("lat"), el.getCenter().get("lon")));
+        }
     }
 
     public static OPPlaceInterface createFromNominatimElement(NominatimElement el){

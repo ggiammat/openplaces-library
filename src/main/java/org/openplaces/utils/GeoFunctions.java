@@ -17,18 +17,18 @@ public class GeoFunctions {
 
     static Logger logger = LoggerFactory.getLogger(GeoFunctions.class);
 
-
-    public static OPGeoPoint computeCentroid(OPGeoPoint[] points){
-        int numPoints = points.length;
-        double sumLat = 0;
-        double sumLon = 0;
-        for(int i=0; i < numPoints; i++){
-            sumLat += points[i].getLat();
-            sumLon += points[i].getLon();
-        }
-
-        return new OPGeoPoint(sumLat/numPoints, sumLon/numPoints);
-    }
+//    NOT USED BECAUSE overpass can return the centr of an area using "out center;" action
+//    public static OPGeoPoint computeCentroid(OPGeoPoint[] points){
+//        int numPoints = points.length;
+//        double sumLat = 0;
+//        double sumLon = 0;
+//        for(int i=0; i < numPoints; i++){
+//            sumLat += points[i].getLat();
+//            sumLon += points[i].getLon();
+//        }
+//
+//        return new OPGeoPoint(sumLat/numPoints, sumLon/numPoints);
+//    }
 
     /**
      * returns the area of the region in the bounding box in square KM

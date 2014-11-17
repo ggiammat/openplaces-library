@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.openplaces.utils.GeoFunctions;
 import org.openplaces.utils.HttpHelper;
 import org.openplaces.model.OSMTagFilterGroup;
 import org.openplaces.internal.model.OverpassElement;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import javax.swing.BoundedRangeModel;
 
 public class OverpassProvider {
 
@@ -47,7 +50,7 @@ public class OverpassProvider {
 
     public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes){
 
-        String script = "(";
+        String script = ";(";
 
         List<String> bbFilters = new ArrayList<String>();
         for(OPBoundingBox bb: boundingBoxes){
@@ -64,13 +67,13 @@ public class OverpassProvider {
                 script +=
                         "(\n" +
                         "node"+bbFilter+tagsFilter+";\n" +
-                        "way"+bbFilter+tagsFilter+";>;\n" +
+                        "way"+bbFilter+tagsFilter+";\n" +
                         ");\n";
             }
 
         }
 
-        script += ");out body;\n";
+        script += ");out body center;\n";
 
         return this.doQuery(script);
     }
@@ -86,52 +89,55 @@ public class OverpassProvider {
     /**
      * at the moment consider only nodes
      * @param point
-     * @param radius
+     * @param radius in meters
      * @return
      */
 	public List<OverpassElement> getAroundLocations(OPGeoPoint point, long radius){
-		String script = "(" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"village\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"hamlet\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"isolated_dwelling\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"town\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"suburb\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"neighbourhood\"];" +
-                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"city\"];" +
+
+        //OLD implementation that uses around. Now the script use a boundingbox
+//		String script = "(" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"village\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"hamlet\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"isolated_dwelling\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"town\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"suburb\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"neighbourhood\"];" +
+//                "node(around:"+radius+","+point.getLat()+","+point.getLon()+")[\"place\"=\"city\"];" +
+//                ");out;";
+
+        OPBoundingBox bbox = GeoFunctions.generateBoundingBox(point, Math.pow((radius/1000d) * 2, 2));
+        String bbFilter = "[bbox:" + bbox.getSouth() + "," + bbox.getWest() + "," + bbox.getNorth() + "," + bbox.getEast() + "];";
+
+		String script = bbFilter + "(" +
+                "node[\"place\"=\"village\"];" +
+                "node[\"place\"=\"hamlet\"];" +
+                "node[\"place\"=\"isolated_dwelling\"];" +
+                "node[\"place\"=\"town\"];" +
+                "node[\"place\"=\"suburb\"];" +
+                "node[\"place\"=\"neighbourhood\"];" +
+                "node[\"place\"=\"city\"];" +
                 ");out;";
+
 		return this.doQuery(script);
 	}
 
-
-
-
-
-
-
-
-	/*
-	 * input 
-	 * { ["node", 123], ["way", 123]}
-	 */
-	public List<OverpassElement> getFromCoordsList(Set<String[]> coords){
+	public List<OverpassElement> getFromTypeAndId(Set<String> typeAndIdPairs){
 		
 		StringBuffer script = new StringBuffer();
-		for(String[] coord: coords){
-			script.append(coord[0]+"("+coord[1]+");");
+		for(String coord: typeAndIdPairs){
+            String[] tokens = coord.split(":");
+			script.append(tokens[0]+"("+tokens[1]+");");
 		}
-		String overpassScript = "(" + script.toString() + ");out;";
+		String overpassScript = ";(" + script.toString() + ");out center;";
 		
 		return this.doQuery(overpassScript);
 	}
 	
 	
-	public List<OverpassElement> search(String script){
-		return this.doQuery(script);
-	}
-	
+
 	private List<OverpassElement> doQuery(String overpassQLScript){
 		logger.debug("Executing script:\n" + overpassQLScript);
-		String data = hh.encodeString("[out:json][timeout:"+this.overpassTimeout+"];" + overpassQLScript);
+		String data = hh.encodeString("[out:json][timeout:"+this.overpassTimeout+"]" + overpassQLScript);
 		
 		String url = this.server + "?data=" + data;
 		

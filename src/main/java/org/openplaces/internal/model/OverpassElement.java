@@ -12,6 +12,9 @@ public class OverpassElement {
 	private Map<String, String> tags;
     private String type;
     private long[] nodes;
+    private Map<String, Double> center;
+
+
 
 	public OverpassElement() {
 		super();
@@ -105,5 +108,13 @@ public class OverpassElement {
 
     public void setNodes(long[] nodes) {
         this.nodes = nodes;
+    }
+
+    public Map<String, Double> getCenter() {
+        return center;
+    }
+
+    public void setCenter(Map<String, Double> center) {
+        this.center = center;
     }
 }
