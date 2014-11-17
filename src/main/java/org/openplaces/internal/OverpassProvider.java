@@ -19,8 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import javax.swing.BoundedRangeModel;
-
 public class OverpassProvider {
 
     Logger logger = LoggerFactory.getLogger(OverpassProvider.class);
@@ -47,8 +45,14 @@ public class OverpassProvider {
 		return overpassTimeout;
 	}
 
-
-    public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes){
+    /**
+     *
+     * @param filterGroups
+     * @param boundingBoxes
+     * @param additionalFilterInAnd used to add matching on the name tag
+     * @return
+     */
+    public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes, OSMTagFilterGroup additionalFilterInAnd){
 
         String script = ";(";
 
@@ -61,13 +65,14 @@ public class OverpassProvider {
                     bb.getEast() + ")");
         }
 
+        String additionalFilter = additionalFilterInAnd == null ? "" : additionalFilterInAnd.buildOverpassScript();
         for(OSMTagFilterGroup filterGroup: filterGroups){
             String tagsFilter = filterGroup.buildOverpassScript();
             for(String bbFilter: bbFilters){
                 script +=
                         "(\n" +
-                        "node"+bbFilter+tagsFilter+";\n" +
-                        "way"+bbFilter+tagsFilter+";\n" +
+                        "node"+bbFilter+tagsFilter+additionalFilter+";\n" +
+                        "way"+bbFilter+tagsFilter+additionalFilter+";\n" +
                         ");\n";
             }
 
