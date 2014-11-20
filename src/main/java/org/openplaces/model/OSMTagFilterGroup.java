@@ -1,5 +1,8 @@
 package org.openplaces.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,9 +11,32 @@ import java.util.Map;
  */
 public class OSMTagFilterGroup {
 
-    private Map<String, OSMTagFilterPredicate> operations = new HashMap<String, OSMTagFilterPredicate>();
-    private Map<String, String> values = new HashMap<String, String>();
+    Logger logger = LoggerFactory.getLogger(OSMTagFilterGroup.class);
 
+
+    private Map<String, OSMTagFilterPredicate> operations;
+    private Map<String, String> values;
+
+    public void setOperations(Map<String, OSMTagFilterPredicate> operations) {
+        this.operations = operations;
+    }
+
+    public Map<String, OSMTagFilterPredicate> getOperations(){
+        return this.operations;
+    }
+
+    public void setValues(Map<String, String> values) {
+        this.values = values;
+    }
+
+    public Map<String, String> getValues(){
+        return this.values;
+    }
+
+    public OSMTagFilterGroup(){
+        this.operations = new HashMap<String, OSMTagFilterPredicate>();
+        this.values = new HashMap<String, String>();
+    }
 
     public enum OSMTagFilterPredicate {
         IS_EQUALS_TO, MATCHES, HAS_TAG, HAS_NOT_TAG
@@ -22,6 +48,42 @@ public class OSMTagFilterGroup {
         this.values.put(tagName, value);
 
         return this;
+    }
+
+    public boolean tagsMatchesFilters(Map<String, String> tags){
+        if(tags == null){
+            logger.debug("tagset is null. Cannot perform the match. Returning false");
+            return false;
+        }
+        for(String tagName: this.operations.keySet()){
+            if(OSMTagFilterPredicate.IS_EQUALS_TO.equals(this.operations.get(tagName))){
+                if(!tags.containsKey(tagName)){
+                    return false;
+                }
+                if(!tags.get(tagName).equals(this.values.get(tagName))){
+                    return false;
+                }
+            }
+            if(OSMTagFilterPredicate.MATCHES.equals(this.operations.get(tagName))){
+                if(!tags.containsKey(tagName)){
+                    return false;
+                }
+                if(!tags.get(tagName).matches(buildRegex(this.values.get(tagName)))){
+                    return false;
+                }
+            }
+            if(OSMTagFilterPredicate.HAS_TAG.equals(this.operations.get(tagName))){
+                if(!tags.containsKey(tagName)){
+                    return false;
+                }            }
+            if(OSMTagFilterPredicate.HAS_NOT_TAG.equals(this.operations.get(tagName))){
+                if(tags.containsKey(tagName)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public String buildOverpassScript(){
@@ -55,8 +117,9 @@ public class OSMTagFilterGroup {
             res = res + "["+firstLetter.toUpperCase(firstLetter)+firstLetter.toLowerCase(firstLetter)+"]"+words[i].substring(1)+" ";
 
         }
-        System.out.println("Returning " + res);
-        return res.trim();
+        res = ".*"+res.trim()+".*";
+        logger.debug("Building rexeg: " + res + " (original text: " + name + ")");
+        return res;
     }
 
     @Override

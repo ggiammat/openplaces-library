@@ -1,6 +1,7 @@
 package org.openplaces.model.impl;
 
 import org.openplaces.model.OPPlaceCategoryInterface;
+import org.openplaces.model.OPPlaceInterface;
 import org.openplaces.model.OSMTagFilterGroup;
 
 import java.util.List;
@@ -16,6 +17,9 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
     private List<OSMTagFilterGroup> osmTagFilterGroups;
 
     private Map<String, String> localization;
+    private String symbol;
+
+
 
 
     public String getFirstNameMatch(String text){
@@ -68,4 +72,33 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
     public Map<String, String> getLocalizedNames(){
         return this.localization;
     }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    /**
+     * return the number of filters of the first matching tag filter group.
+     * -1 if no match is found
+     * @param place
+     * @return
+     */
+    @Override
+    public int placeMatchesCategory(OPPlaceInterface place) {
+        Map<String, String> tags = place.getOsmTags();
+
+        //filter groups are in OR
+        for(OSMTagFilterGroup fg: this.osmTagFilterGroups){
+            if(fg.tagsMatchesFilters(tags)){
+                return fg.getOperations().size();
+            }
+        }
+
+        return -1;
+    }
+
 }

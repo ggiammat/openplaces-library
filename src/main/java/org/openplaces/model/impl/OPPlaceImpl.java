@@ -23,6 +23,7 @@ public class OPPlaceImpl implements OPPlaceInterface {
     private String addressString;
     private Map<String, String> addressTokens;
     private String type;
+    private Map<String, String> osmTags;
 
 
     public OPPlaceImpl(){
@@ -71,7 +72,7 @@ public class OPPlaceImpl implements OPPlaceInterface {
 
     @Override
     public String toString() {
-        return this.getName() + ", " + " ("+this.getId()+") at " +this.position + " [" + this.getAddressTokens() + "]";
+        return this.getName() + ", " + " ("+this.getId()+") at " +this.position + " [" + this.getAddressTokens() + "]" + " tags: " + this.osmTags;
     }
 
     public OPGeoPoint getPosition() {
@@ -104,5 +105,13 @@ public class OPPlaceImpl implements OPPlaceInterface {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Map<String, String> getOsmTags() {
+        return osmTags;
+    }
+
+    public void setOsmTags(Map<String, String> osmTags) {
+        this.osmTags = osmTags;
     }
 }

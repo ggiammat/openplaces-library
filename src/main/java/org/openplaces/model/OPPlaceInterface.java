@@ -43,4 +43,8 @@ public interface OPPlaceInterface {
     public String getType();
 
     public void setType(String type);
+
+    public Map<String, String> getOsmTags();
+
+    public void setOsmTags(Map<String, String> osmTags);
 }

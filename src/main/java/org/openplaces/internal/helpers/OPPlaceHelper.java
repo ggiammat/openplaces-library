@@ -23,6 +23,7 @@ public class OPPlaceHelper {
         place.setId(el.getId());
         place.setName(el.getTag("name", null));
         place.setOsmType(el.getType());
+        place.setOsmTags(el.getTags());
         //if position is available from overpass, overwrite current position
         //(the position from Nominatim might be computed and not from OSM data)
         if(el.getLat() != null && el.getLon() != null) {

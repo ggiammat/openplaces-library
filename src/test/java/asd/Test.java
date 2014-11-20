@@ -19,7 +19,6 @@ public class Test {
 	public static void main(String[] args) {
 
 
-
 		HttpHelper hh = new HttpHelper();
 		
 		//hh.setHttpProxy("www-proxy.eng.it", 8080);
@@ -40,28 +39,29 @@ public class Test {
 
 
 
-//        OPLocationInterface loc = osmp.getLocationsByName("Velletri").get(0);
+        OPLocationInterface loc = osmp.getLocationsByName("Velletri").get(0);
+
+        OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/gabriele/projects/P.OpenPlaces/workspace/openplaces-android/app/src/main/res/raw/default_categories_library.json");
+        System.out.println(r);
+
+        List<OPPlaceInterface> res = osmp.getPlaces(r.getCategories().get(0), loc);
+
+        for(OPPlaceInterface p: res){
+            System.out.println(p);
+            System.out.println(r.getCategories().get(2).placeMatchesCategory(p));
+        }
+
+
 //
-//        OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/gabriele/projects/P.OpenPlaces/workspace/openplaces-library/src/test/resources/default-categories-library.json");
-//        System.out.println(r);
-//
-//        List<OPPlaceInterface> res = osmp.getPlaces(r.getCategories().get(0), loc);
+//        Set<String> places = new HashSet<String>();
+//        places.add("node:2187805971");
+//        places.add("way:207894705");
+//        places.add("node:672980664");
+//        List<OPPlaceInterface> res = osmp.getPlacesByTypesAndIds(places);
 //
 //        for(OPPlaceInterface p: res){
 //            System.out.println(p);
 //        }
-
-
-
-        Set<String> places = new HashSet<String>();
-        places.add("node:2187805971");
-        places.add("way:207894705");
-        places.add("node:672980664");
-        List<OPPlaceInterface> res = osmp.getPlacesByTypesAndIds(places);
-
-        for(OPPlaceInterface p: res){
-            System.out.println(p);
-        }
 
 
 	}

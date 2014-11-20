@@ -25,4 +25,11 @@ public interface OPPlaceCategoryInterface {
     public void setLocalization(Map<String, String> localization);
 
     public String getFirstNameMatch(String text);
+
+    public String getSymbol();
+
+    public void setSymbol(String symbol);
+
+    public int placeMatchesCategory(OPPlaceInterface place);
+
 }
