@@ -1,5 +1,7 @@
 package org.openplaces.model;
 
+import org.openplaces.utils.GeoFunctions;
+
 /**
  * Created by ggiammat on 11/5/14.
  */
@@ -30,6 +32,14 @@ public class OPGeoPoint {
         this.lon = lon;
     }
 
+    /**
+     * returns the distance in Kilometers from anotehr point
+     * @param otherPoint
+     * @return
+     */
+    public double distanceFrom(OPGeoPoint otherPoint){
+        return GeoFunctions.distance(this, otherPoint) / 1000;
+    }
 
     @Override
     public String toString() {
