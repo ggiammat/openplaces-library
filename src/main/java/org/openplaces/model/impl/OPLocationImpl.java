@@ -1,10 +1,12 @@
 package org.openplaces.model.impl;
 
+import org.openplaces.internal.helpers.OPPlaceHelper;
 import org.openplaces.internal.model.NominatimElement;
 import org.openplaces.internal.model.OverpassElement;
 import org.openplaces.model.OPBoundingBox;
 import org.openplaces.model.OPGeoPoint;
 import org.openplaces.model.OPLocationInterface;
+import org.openplaces.model.OPPlaceInterface;
 
 /**
  * Created by ggiammat on 11/5/14.
@@ -92,5 +94,11 @@ public class OPLocationImpl implements OPLocationInterface {
 
     public void setPosition(OPGeoPoint position) {
         this.position = position;
+    }
+
+    @Override
+    public OPPlaceInterface getAsPlace() {
+
+        return OPPlaceHelper.createFromOPLocation(this);
     }
 }

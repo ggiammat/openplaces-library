@@ -29,8 +29,19 @@ import org.openplaces.model.OPGeoPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.transform.Result;
+
 
 public class OpenPlacesProvider {
+
+
+    public class ResultObject{
+        public int errorCode = 0;
+        public String errorMessage = "";
+        public List<OPLocationInterface> locations = new ArrayList<OPLocationInterface>();
+        public List<OPPlaceInterface> places = new ArrayList<OPPlaceInterface>();
+
+    }
 
     Logger logger = LoggerFactory.getLogger(OpenPlacesProvider.class);
 
@@ -57,7 +68,7 @@ public class OpenPlacesProvider {
 	}
 
 
-    public List<OPPlaceInterface> getPlacesByFreeQuery(String name){
+    public ResultObject getPlacesByFreeQuery(String name){
         List<OPPlaceInterface> places = new LinkedList<OPPlaceInterface>();
         List<NominatimElement> nmRes = this.nmp.search(name);
 
@@ -71,7 +82,9 @@ public class OpenPlacesProvider {
 
         this.completeWithOSMData(tmpMap);
 
-        return places;
+        ResultObject res = new ResultObject();
+        res.places = places;
+        return res;
     }
 
     /**
@@ -79,10 +92,12 @@ public class OpenPlacesProvider {
      * @param placesTypesAndIds each element in the form "type:id". E.g "node:123", "way:456"
      * @return
      */
-    public List<OPPlaceInterface> getPlacesByTypesAndIds(Set<String> placesTypesAndIds){
+    public ResultObject getPlacesByTypesAndIds(Set<String> placesTypesAndIds){
+        ResultObject resObj = new ResultObject();
+
         List<OPPlaceInterface> res = new ArrayList<OPPlaceInterface>();
         if(placesTypesAndIds.isEmpty()) {
-            return res;
+            return resObj;
         }
 
         List<OverpassElement> opRes = opp.getFromTypeAndId(placesTypesAndIds);
@@ -90,10 +105,13 @@ public class OpenPlacesProvider {
         for(OverpassElement oe: opRes){
             res.add(OPPlaceHelper.createFromOverpassElement(oe));
         }
-        return res;
+
+        resObj.places = res;
+        return resObj;
     }
 
-    public List<OPLocationInterface> getLocationsByName(String name){
+    public ResultObject getLocationsByName(String name){
+        ResultObject resObj = new ResultObject();
 
         List<OPLocationInterface> locations = new LinkedList<OPLocationInterface>();
         List<NominatimElement> nmRes = this.nmp.search(name);
@@ -106,26 +124,32 @@ public class OpenPlacesProvider {
             locations.add(new OPLocationImpl(n));
         }
 
-        return locations;
+        resObj.locations = locations;
+        return resObj;
     }
 
-    public List<OPLocationInterface> getLocationsAround(OPGeoPoint point, double radius){
+    public ResultObject getLocationsAround(OPGeoPoint point, double radius){
+        ResultObject resObj = new ResultObject();
+
         if(radius > this.getMaxSearchRadius()){
-            logger.warn("Search radius is too big: {} km. Search will not be performed (max is {} km)", radius, this.getMaxSearchRadius());
-            return new LinkedList<OPLocationInterface>();
+            resObj.errorCode = 1;
+            resObj.errorMessage = "Search radius is too big: "+radius+" km. Search will not be performed (max is "+this.getMaxSearchRadius()+" km)";
+            logger.warn(resObj.errorMessage);
+            return resObj;
         }
         List<OverpassElement> res = this.opp.getAroundLocations(point, Math.round(radius * 1000));
         List<OPLocationInterface> returnObj = new LinkedList<OPLocationInterface>();
         for(OverpassElement el: res){
             returnObj.add(new OPLocationImpl(el));
         }
-        return returnObj;
+        resObj.locations = returnObj;
+        return resObj;
     }
 
 
     public void addBoundingBoxFromNominatim(OPLocationInterface loc){
 
-        List<OPLocationInterface> nlocs = this.getLocationsByName(loc.getDisplayName());
+        List<OPLocationInterface> nlocs = this.getLocationsByName(loc.getDisplayName()).locations;
         for(OPLocationInterface nl: nlocs){
             if(nl.getBoundingBox().contains(loc.getPosition())){
                 logger.debug("Setting bounding box from {}", nl);
@@ -150,55 +174,62 @@ public class OpenPlacesProvider {
 
 
 
-    public List<OPPlaceInterface> getPlaces(OPPlaceCategoryInterface type, List<OPLocationInterface> where){
+    public ResultObject getPlaces(OPPlaceCategoryInterface type, List<OPLocationInterface> where){
         return this.getPlaces(Arrays.asList(new OPPlaceCategoryInterface[]{type}), where, null);
     }
 
-    public List<OPPlaceInterface> getPlaces(List<OPPlaceCategoryInterface> types, OPLocationInterface where){
+    public ResultObject getPlaces(List<OPPlaceCategoryInterface> types, OPLocationInterface where){
         return this.getPlaces(types, Arrays.asList(new OPLocationInterface[]{where}), null);
     }
 
-    public List<OPPlaceInterface> getPlaces(OPPlaceCategoryInterface type, OPLocationInterface where){
+    public ResultObject getPlaces(OPPlaceCategoryInterface type, OPLocationInterface where){
         return this.getPlaces(Arrays.asList(new OPPlaceCategoryInterface[]{type}), Arrays.asList(new OPLocationInterface[]{where}), null);
     }
 
-    public List<OPPlaceInterface> getPlaces(List<OPPlaceCategoryInterface> types, List<OPLocationInterface> where) {
+    public ResultObject getPlaces(List<OPPlaceCategoryInterface> types, List<OPLocationInterface> where) {
         return this.getPlaces(types, where, null);
     }
 
 
-    public List<OPPlaceInterface> getPlaces(OPPlaceCategoryInterface type, List<OPLocationInterface> where, String nameMatching){
+    public ResultObject getPlaces(OPPlaceCategoryInterface type, List<OPLocationInterface> where, String nameMatching){
         return this.getPlaces(Arrays.asList(new OPPlaceCategoryInterface[]{type}), where, nameMatching);
     }
 
-    public List<OPPlaceInterface> getPlaces(List<OPPlaceCategoryInterface> types, OPLocationInterface where, String nameMatching){
+    public ResultObject getPlaces(List<OPPlaceCategoryInterface> types, OPLocationInterface where, String nameMatching){
         return this.getPlaces(types, Arrays.asList(new OPLocationInterface[]{where}), nameMatching);
     }
 
-    public List<OPPlaceInterface> getPlaces(OPPlaceCategoryInterface type, OPLocationInterface where, String nameMatching){
-        return this.getPlaces(Arrays.asList(new OPPlaceCategoryInterface[]{type}), Arrays.asList(new OPLocationInterface[]{where}), nameMatching);
-    }
+//    public List<OPPlaceInterface> getPlaces(OPPlaceCategoryInterface type, OPLocationInterface where, String nameMatching){
+//        return this.getPlaces(Arrays.asList(new OPPlaceCategoryInterface[]{type}), Arrays.asList(new OPLocationInterface[]{where}), nameMatching);
+//    }
 
-    public List<OPPlaceInterface> getPlaces(List<OPPlaceCategoryInterface> types, List<OPLocationInterface> where, String nameMatching){
+    public ResultObject getPlaces(List<OPPlaceCategoryInterface> types, List<OPLocationInterface> where, String nameMatching){
+        ResultObject res = new ResultObject();
 
         List<OPBoundingBox> bboxes = new ArrayList<OPBoundingBox>();
 
         for(OPLocationInterface loc: where){
             if(loc.getBoundingBox() == null){
-                logger.debug("Location boundingbox is null. Finding it i Nominatim");
+                logger.debug("Location boundingbox is null. Searching it i Nominatim");
                 this.addBoundingBoxFromNominatim(loc);
             }
             if(GeoFunctions.boundingBoxArea(loc.getBoundingBox()) > this.getMaxSearchBoundingBox()){
-                logger.warn("Bounding box is to large: {} sq. km. Search will not be performed (max is {} sq. km).", GeoFunctions.boundingBoxArea(loc.getBoundingBox()), this.getMaxSearchBoundingBox());
-                return new LinkedList<OPPlaceInterface>();
+                res.errorCode = 1;
+                res.errorMessage = "Search radius is too big: "+GeoFunctions.boundingBoxArea(loc.getBoundingBox())+" km. Search will not be performed (max is "+this.getMaxSearchBoundingBox()+" km)";
+                logger.warn(res.errorMessage);
+                return res;
             }
             bboxes.add(loc.getBoundingBox());
         }
 
         List<OSMTagFilterGroup> filters = new ArrayList<OSMTagFilterGroup>();
-        for(OPPlaceCategoryInterface type: types){
-            filters.addAll(type.getOsmTagFilterGroups());
+
+        if(types != null){
+            for(OPPlaceCategoryInterface type: types){
+                filters.addAll(type.getOsmTagFilterGroups());
+            }
         }
+
 
         OSMTagFilterGroup nameFiltering = null;
 
@@ -245,7 +276,8 @@ public class OpenPlacesProvider {
 //            }
         }
 
-        return places;
+        res.places = places;
+        return res;
     }
 
 

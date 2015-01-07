@@ -4,6 +4,7 @@ import org.openplaces.internal.model.NominatimElement;
 import org.openplaces.internal.model.OverpassElement;
 import org.openplaces.internal.model.ReviewServerElement;
 import org.openplaces.model.OPGeoPoint;
+import org.openplaces.model.OPLocationInterface;
 import org.openplaces.model.OPPlaceInterface;
 import org.openplaces.model.impl.OPPlaceImpl;
 
@@ -11,6 +12,16 @@ import org.openplaces.model.impl.OPPlaceImpl;
  * Created by ggiammat on 11/12/14.
  */
 public class OPPlaceHelper {
+
+
+    public static OPPlaceInterface createFromOPLocation(OPLocationInterface loc){
+        OPPlaceInterface place = new OPPlaceImpl();
+        place.setId(loc.getId());
+        place.setName(loc.getDisplayName());
+        place.setPosition(loc.getPosition());
+        place.setOsmType(loc.getType());
+        return place;
+    }
 
 
     public static OPPlaceInterface createFromOverpassElement(OverpassElement el){

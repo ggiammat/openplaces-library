@@ -66,17 +66,31 @@ public class OverpassProvider {
         }
 
         String additionalFilter = additionalFilterInAnd == null ? "" : additionalFilterInAnd.buildOverpassScript();
-        for(OSMTagFilterGroup filterGroup: filterGroups){
-            String tagsFilter = filterGroup.buildOverpassScript();
+
+        //if no categories are provided match only by name
+        if(filterGroups.isEmpty()){
             for(String bbFilter: bbFilters){
                 script +=
                         "(\n" +
-                        "node"+bbFilter+tagsFilter+additionalFilter+";\n" +
-                        "way"+bbFilter+tagsFilter+additionalFilter+";\n" +
-                        ");\n";
+                                "node"+bbFilter+additionalFilter+";\n" +
+                                "way"+bbFilter+additionalFilter+";\n" +
+                                ");\n";
             }
-
         }
+        else {
+            for(OSMTagFilterGroup filterGroup: filterGroups){
+                String tagsFilter = filterGroup.buildOverpassScript();
+                for(String bbFilter: bbFilters){
+                    script +=
+                            "(\n" +
+                                    "node"+bbFilter+tagsFilter+additionalFilter+";\n" +
+                                    "way"+bbFilter+tagsFilter+additionalFilter+";\n" +
+                                    ");\n";
+                }
+
+            }
+        }
+
 
         script += ");out body center;\n";
 

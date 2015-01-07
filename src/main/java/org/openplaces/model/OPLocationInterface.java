@@ -24,4 +24,6 @@ public interface OPLocationInterface {
     public OPGeoPoint getPosition();
 
     public void setPosition(OPGeoPoint position);
+
+    public OPPlaceInterface getAsPlace();
 }
