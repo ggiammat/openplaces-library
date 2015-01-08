@@ -8,6 +8,8 @@ import org.openplaces.model.OPGeoPoint;
 import org.openplaces.model.OPLocationInterface;
 import org.openplaces.model.OPPlaceInterface;
 
+import java.util.Map;
+
 /**
  * Created by ggiammat on 11/5/14.
  */
@@ -18,6 +20,7 @@ public class OPLocationImpl implements OPLocationInterface {
     private String type;
     private OPGeoPoint position;
     private OPBoundingBox boundingBox;
+    private Map<String, String> osmTags;
 
     public OPLocationImpl(){
 
@@ -31,6 +34,7 @@ public class OPLocationImpl implements OPLocationInterface {
         if(el.getLat() != null && el.getLon() != null){
             this.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
         }
+        this.setOsmTags(el.getTags());
     }
 
     public OPLocationImpl(NominatimElement el){
@@ -52,6 +56,16 @@ public class OPLocationImpl implements OPLocationInterface {
 
     public String getType() {
         return type;
+    }
+
+    @Override
+    public void setOsmTags(Map<String, String> tags) {
+        this.osmTags =tags;
+    }
+
+    @Override
+    public Map<String, String> getOsmTags() {
+        return this.osmTags;
     }
 
     public void setType(String type) {

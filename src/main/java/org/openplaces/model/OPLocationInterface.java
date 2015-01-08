@@ -1,11 +1,17 @@
 package org.openplaces.model;
 
+import java.util.Map;
+
 /**
  * Created by ggiammat on 11/12/14.
  */
 public interface OPLocationInterface {
 
     public String getType();
+
+    public void setOsmTags(Map<String, String> tags);
+
+    public Map<String, String> getOsmTags();
 
     public void setType(String type);
 

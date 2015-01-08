@@ -20,6 +20,7 @@ public class OPPlaceHelper {
         place.setName(loc.getDisplayName());
         place.setPosition(loc.getPosition());
         place.setOsmType(loc.getType());
+        place.setOsmTags(loc.getOsmTags());
         return place;
     }
 
