@@ -1,5 +1,6 @@
 package org.openplaces.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,12 +36,12 @@ public class OverpassProvider {
 		this.hh = hh;
 		this.overpassTimeout = 25;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	public int getOverpassTimeout() {
 		return overpassTimeout;
 	}
@@ -52,7 +53,7 @@ public class OverpassProvider {
      * @param additionalFilterInAnd used to add matching on the name tag
      * @return
      */
-    public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes, OSMTagFilterGroup additionalFilterInAnd){
+    public Collection<OverpassElement> getPlaces(List<OSMTagFilterGroup> filterGroups, List<OPBoundingBox> boundingBoxes, OSMTagFilterGroup additionalFilterInAnd) throws IOException {
 
         String script = ";(";
 
@@ -111,7 +112,7 @@ public class OverpassProvider {
      * @param radius in meters
      * @return
      */
-	public List<OverpassElement> getAroundLocations(OPGeoPoint point, long radius){
+	public List<OverpassElement> getAroundLocations(OPGeoPoint point, long radius) throws IOException {
 
         //OLD implementation that uses around. Now the script use a boundingbox
 //		String script = "(" +
@@ -140,7 +141,7 @@ public class OverpassProvider {
 		return this.doQuery(script);
 	}
 
-	public List<OverpassElement> getFromTypeAndId(Set<String> typeAndIdPairs){
+	public List<OverpassElement> getFromTypeAndId(Set<String> typeAndIdPairs) throws IOException {
 		
 		StringBuffer script = new StringBuffer();
 		for(String coord: typeAndIdPairs){
@@ -154,7 +155,7 @@ public class OverpassProvider {
 	
 	
 
-	private List<OverpassElement> doQuery(String overpassQLScript){
+	private List<OverpassElement> doQuery(String overpassQLScript) throws IOException {
 		logger.debug("Executing script:\n" + overpassQLScript);
 		String data = hh.encodeString("[out:json][timeout:"+this.overpassTimeout+"]" + overpassQLScript);
 		

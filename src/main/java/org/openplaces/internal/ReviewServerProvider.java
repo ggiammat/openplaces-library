@@ -5,6 +5,8 @@ import org.openplaces.internal.model.ReviewServerElement;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
+
 public class ReviewServerProvider {
 	
 	
@@ -21,7 +23,7 @@ public class ReviewServerProvider {
 
 
 
-	public ReviewServerElement getPlace(String placeId){
+	public ReviewServerElement getPlace(String placeId) throws IOException {
 	
 		String url = this.server + "/places/" + placeId;
 		String res = hh.doGET(url);	

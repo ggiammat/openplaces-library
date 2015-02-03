@@ -9,7 +9,7 @@ public class LibraryTest {
 
     public static void main(String[] args){
 
-        OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/ggiammat/projects/P.OSMPlaces/workspace/openplaces-library/src/test/resources/default-categories-library.json");
+        OPPlaceCategoriesLibrary r = OPPlaceCategoriesLibrary.loadFromFile("/home/ggiammat/projects/P.OSMPlaces/workspace/openplaces-android/app/src/main/res/raw/food_standard_library.json");
         System.out.println(r);
     }
 }

@@ -1,5 +1,6 @@
 package org.openplaces.internal;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,16 +29,15 @@ public class NominatimProvider {
 		this.hh = hh;
 		this.userEmail = userEmail;
 	}
-
 	
-	public List<NominatimElement> search(String query){
+	public List<NominatimElement> search(String query) throws IOException {
 		Map<String, String> queryStringParams = new HashMap<String, String>();
 		queryStringParams.put("q", hh.encodeString(query));
         queryStringParams.put("addressdetails", "1");
 		return this.jsonArrayToPlace(this.doCall("search", queryStringParams));
 	}
 
-	public NominatimElement reverse(String osmId, String osmType){
+	public NominatimElement reverse(String osmId, String osmType) throws IOException {
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("osm_id", osmId);
         queryParams.put("osm_type", osmType);
@@ -47,7 +47,7 @@ public class NominatimProvider {
         return res;
     }
 	
-	private String doCall(String method, Map<String, String> queryStringParams){
+	private String doCall(String method, Map<String, String> queryStringParams) throws IOException {
         if(!"search".equals(method) && !"reverse".equals(method)){
             logger.debug("Invalid method: {}. Only 'search' and 'reverse' are recognized", method);
         }
@@ -78,7 +78,6 @@ public class NominatimProvider {
         Gson gson = new Gson();
         NominatimElement place = gson.fromJson(jstring, NominatimElement.class);
 
-
         return place;
     }
 	
@@ -86,8 +85,7 @@ public class NominatimProvider {
 		
 		Gson gson = new Gson();
 		NominatimElement[] places = gson.fromJson(jstring, NominatimElement[].class);
-		
-		
+
 		return Arrays.asList(places);
 	}
 

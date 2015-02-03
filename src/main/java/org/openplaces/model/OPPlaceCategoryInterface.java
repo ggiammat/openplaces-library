@@ -8,28 +8,24 @@ import java.util.Map;
  */
 public interface OPPlaceCategoryInterface {
 
-    public String getType();
 
-    public void setType(String category);
+    public String getId();
 
-    public String getName();
-
-    public void setName(String name);
-
-    public void setOsmTagFilterGroups(List<OSMTagFilterGroup> osmTagFilterGroups);
+    public void setId(String name);
 
     public List<OSMTagFilterGroup> getOsmTagFilterGroups();
 
-    public Map<String, String> getLocalizedNames();
+    public void setOsmTagFilterGroups(List<OSMTagFilterGroup> osmTagFilterGroups);
 
-    public void setLocalization(Map<String, String> localization);
+    public void setNames(Map<String, String> localization);
+
+    public Map<String, String> getNames();
+
+    public boolean placeMatchesCategory(OPPlaceInterface place);
 
     public String getFirstNameMatch(String text);
 
-    public String getSymbol();
+    public int getPriority();
 
-    public void setSymbol(String symbol);
-
-    public int placeMatchesCategory(OPPlaceInterface place);
-
+    public void setPriority(int priority);
 }

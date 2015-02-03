@@ -12,21 +12,19 @@ import java.util.Map;
  */
 public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
 
-    private String name;
-    private String type;
+    private String id;
     private List<OSMTagFilterGroup> osmTagFilterGroups;
-
-    private Map<String, String> localization;
-    private String symbol;
+    private Map<String, String> names;
 
 
+    private int priority;
 
 
     public String getFirstNameMatch(String text){
-        if(this.getName().toLowerCase().contains(text)){
-            return this.getName();
+        if(this.getId().toLowerCase().contains(text)){
+            return this.getId();
         }
-        for(String n: this.getLocalizedNames().values()){
+        for(String n: this.getNames().values()){
             if(n.toLowerCase().contains(text)){
                 return n;
             }
@@ -35,51 +33,40 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
         return null;
     }
 
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String toString() {
-        return this.getName() + " (" + this.getType() + "), tags: " + this.osmTagFilterGroups + ", names: " + this.localization.values();
+        return this.getId() +" (p:"+ this.priority + "), tags: " + this.osmTagFilterGroups + ", names: " + this.names.values();
     }
 
     public void setOsmTagFilterGroups(List<OSMTagFilterGroup> osmTagFilterGroups) {
         this.osmTagFilterGroups = osmTagFilterGroups;
     }
 
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    @Override
+    public void setId(String name) {
+        this.id = name;
+    }
+
+    @Override
     public List<OSMTagFilterGroup> getOsmTagFilterGroups(){
         return this.osmTagFilterGroups;
     }
 
-    public void setLocalization(Map<String, String> localization) {
-        this.localization = localization;
+    @Override
+    public Map<String, String> getNames() {
+        return this.names;
     }
 
-    public Map<String, String> getLocalizedNames(){
-        return this.localization;
+    @Override
+    public void setNames(Map<String, String> localization) {
+        this.names = localization;
     }
 
-    public String getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
 
     /**
      * return the number of filters of the first matching tag filter group.
@@ -88,17 +75,25 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
      * @return
      */
     @Override
-    public int placeMatchesCategory(OPPlaceInterface place) {
+    public boolean placeMatchesCategory(OPPlaceInterface place) {
         Map<String, String> tags = place.getOsmTags();
 
         //filter groups are in OR
         for(OSMTagFilterGroup fg: this.osmTagFilterGroups){
             if(fg.tagsMatchesFilters(tags)){
-                return fg.getOperations().size();
+                return true;
             }
         }
 
-        return -1;
+        return false;
     }
 
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+
+    public int getPriority() {
+        return priority;
+    }
 }

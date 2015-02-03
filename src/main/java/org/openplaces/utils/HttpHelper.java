@@ -58,40 +58,27 @@ public class HttpHelper {
 		return string;
 	}
 	
-	public String doGET(String url){
+	public String doGET(String url) throws IOException {
 		logger.info("Calling {}", url);
 		
 		HttpClient client = this.buildClient();
 		HttpGet request = new HttpGet(url);
-		
 
-		// add request header
-		try {
-			HttpResponse response = client.execute(request);
+        HttpResponse response = client.execute(request);
 
-			System.out.println("Response Code : " 
-		                + response.getStatusLine().getStatusCode());
-		 
-			BufferedReader rd = new BufferedReader(
-				new InputStreamReader(response.getEntity().getContent()));
-		 
-			StringBuffer result = new StringBuffer();
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
-			}
-			
-			return result.toString();
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
+        System.out.println("Response Code : "
+                    + response.getStatusLine().getStatusCode());
+
+        BufferedReader rd = new BufferedReader(
+            new InputStreamReader(response.getEntity().getContent()));
+
+        StringBuffer result = new StringBuffer();
+        String line = "";
+        while ((line = rd.readLine()) != null) {
+            result.append(line);
+        }
+
+        return result.toString();
 	}
 
 }
