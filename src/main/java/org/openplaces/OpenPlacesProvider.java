@@ -68,7 +68,7 @@ public class OpenPlacesProvider {
         List<NominatimElement> nmRes = null;
 
         try {
-            this.nmp.search(name);
+            nmRes = this.nmp.search(name);
         } catch (IOException e) {
             e.printStackTrace();
             return OPProviderResultObject.getNetworkErrorRO(e.getMessage());

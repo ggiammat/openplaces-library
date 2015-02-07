@@ -21,10 +21,13 @@ public class OPLocationImpl implements OPLocationInterface {
     private OPGeoPoint position;
     private OPBoundingBox boundingBox;
     private Map<String, String> osmTags;
+    private String osmType;
 
     public OPLocationImpl(){
 
     }
+
+
 
     public OPLocationImpl(OverpassElement el){
         this.setId(el.getId());
@@ -35,12 +38,14 @@ public class OPLocationImpl implements OPLocationInterface {
             this.setPosition(new OPGeoPoint(el.getLat(), el.getLon()));
         }
         this.setOsmTags(el.getTags());
+        this.setOsmType(el.getType());
     }
 
     public OPLocationImpl(NominatimElement el){
         this.setId(el.getOsm_id());
         this.setDisplayName(el.getDisplay_name());
         this.setType(el.getType());
+        this.setOsmType(el.getOsm_type());
 
         OPBoundingBox bb = new OPBoundingBox(
             Math.max(el.getBoundingbox()[0], el.getBoundingbox()[1]),
@@ -56,6 +61,16 @@ public class OPLocationImpl implements OPLocationInterface {
 
     public String getType() {
         return type;
+    }
+
+    @Override
+    public String getOsmType() {
+        return this.osmType;
+    }
+
+    @Override
+    public void setOsmType(String osmType) {
+        this.osmType = osmType;
     }
 
     @Override

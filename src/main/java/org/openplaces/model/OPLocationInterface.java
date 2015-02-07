@@ -9,6 +9,9 @@ public interface OPLocationInterface {
 
     public String getType();
 
+    public String getOsmType();
+    public void setOsmType(String osmType);
+
     public void setOsmTags(Map<String, String> tags);
 
     public Map<String, String> getOsmTags();
