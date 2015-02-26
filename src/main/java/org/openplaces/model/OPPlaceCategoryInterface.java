@@ -28,4 +28,8 @@ public interface OPPlaceCategoryInterface {
     public int getPriority();
 
     public void setPriority(int priority);
+
+    public String getIcon();
+    public void setIcon(String icon);
+
 }

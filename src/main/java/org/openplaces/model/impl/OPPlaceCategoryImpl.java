@@ -15,6 +15,7 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
     private String id;
     private List<OSMTagFilterGroup> osmTagFilterGroups;
     private Map<String, String> names;
+    private String icon;
 
 
     private int priority;
@@ -90,6 +91,16 @@ public class OPPlaceCategoryImpl implements OPPlaceCategoryInterface {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    @Override
+    public String getIcon() {
+        return this.icon;
+    }
+
+    @Override
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
 
